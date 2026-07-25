@@ -18,7 +18,7 @@ button { padding: 8px 12px; border: 0; border-radius: var(--radius-sm); cursor: 
 .friend-item-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
 .friend-share-row { padding-top: 8px; border-top: 1px dashed var(--border); font-size: 12.5px; }
 .friend-share-controls { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
-.friend-share-controls input[type="date"] { width: auto; padding: 4px 8px; font-size: 12.5px; }
+.friend-share-controls input[type="date"] { width: auto; padding: 4px 8px; font-size: 16px; }
 
 .friend-unfriend-row {
     justify-content: flex-end;
@@ -89,6 +89,8 @@ html.dark .admin-role-badge { background: rgba(167, 139, 250, .18); color: #c4b5
 .form input:not([type="checkbox"]):not([type="radio"]), .form textarea, .form select {
     width:100%; padding:10px 12px; border:1px solid var(--border); border-radius:var(--radius-sm);
     background:var(--bg-elevated); color: var(--text); outline:none; font-family: inherit;
+    /* iOS Safari는 입력창 글자 크기가 16px 미만이면 포커스 시 화면을 자동 확대함 */
+    font-size: 16px;
 }
 .form input:focus, .form textarea:focus, .form select:focus { border-color: var(--brand); box-shadow:0 0 0 3px rgba(37,99,235,.12); }
 /* .form label의 display:block이 라디오/체크박스 라벨까지 세로로 쌓지 않도록 인라인 정렬 복원 */
