@@ -371,6 +371,51 @@ body.auth-view .content {
     }
 
     /* =====================
+       표(.table) → 카드 리스트
+       - 좁은 화면에서 가로 스크롤 대신 행 하나가 카드 하나가 되도록 재배치
+       - 관리자 회원관리 화면 등에서 텍스트가 겹치거나 줄바꿈되는 것 방지
+       ===================== */
+    .table thead {
+        display: none;
+    }
+
+    .table, .table tbody, .table tr, .table td {
+        display: block;
+        width: 100%;
+    }
+
+    .table tr {
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        margin-bottom: 10px;
+        padding: 4px 12px;
+    }
+
+    .table td {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 8px 0;
+        border-bottom: 1px solid var(--border);
+        white-space: normal;
+        text-align: right;
+    }
+
+    .table td:last-child {
+        border-bottom: none;
+    }
+
+    .table td::before {
+        content: attr(data-label);
+        font-weight: 700;
+        font-size: 12px;
+        color: var(--text-muted);
+        flex-shrink: 0;
+        text-align: left;
+    }
+
+    /* =====================
        Layout
        ===================== */
     .container {

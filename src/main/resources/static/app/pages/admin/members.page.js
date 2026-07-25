@@ -51,14 +51,14 @@ export default function AdminMembersPage() {
                 if (editingId === u.id) {
                     return `
                         <tr data-id="${u.id}">
-                            <td>${u.id}</td>
-                            <td>${u.username}</td>
-                            <td><input type="text" class="edit-display-name" value="${u.displayName}"></td>
-                            <td><input type="text" class="edit-email" value="${u.email}"></td>
-                            <td>${u.role === 'ADMIN' ? '<span class="admin-role-badge">ADMIN</span>' : '<span class="user-role-badge">USER</span>'}</td>
-                            <td>${fmtDateTime(u.lastLoginAt)}</td>
-                            <td>${fmtDateTime(u.createdAt)}</td>
-                            <td>
+                            <td data-label="ID">${u.id}</td>
+                            <td data-label="아이디">${u.username}</td>
+                            <td data-label="이름"><input type="text" class="edit-display-name" value="${u.displayName}"></td>
+                            <td data-label="이메일"><input type="text" class="edit-email" value="${u.email}"></td>
+                            <td data-label="권한">${u.role === 'ADMIN' ? '<span class="admin-role-badge">ADMIN</span>' : '<span class="user-role-badge">USER</span>'}</td>
+                            <td data-label="최근 접속">${fmtDateTime(u.lastLoginAt)}</td>
+                            <td data-label="가입일">${fmtDateTime(u.createdAt)}</td>
+                            <td data-label="관리">
                                 <button class="btn btn-xs btn-primary" data-save="${u.id}">저장</button>
                                 <button class="btn btn-xs btn-ghost" data-cancel="${u.id}">취소</button>
                             </td>
@@ -67,14 +67,14 @@ export default function AdminMembersPage() {
 
                 return `
                     <tr data-id="${u.id}">
-                        <td>${u.id}</td>
-                        <td>${u.username}</td>
-                        <td>${u.displayName}</td>
-                        <td>${u.email}</td>
-                        <td>${u.role === 'ADMIN' ? '<span class="admin-role-badge">ADMIN</span>' : '<span class="user-role-badge">USER</span>'}</td>
-                        <td>${fmtDateTime(u.lastLoginAt)}</td>
-                        <td>${fmtDateTime(u.createdAt)}</td>
-                        <td>
+                        <td data-label="ID">${u.id}</td>
+                        <td data-label="아이디">${u.username}</td>
+                        <td data-label="이름">${u.displayName}</td>
+                        <td data-label="이메일">${u.email}</td>
+                        <td data-label="권한">${u.role === 'ADMIN' ? '<span class="admin-role-badge">ADMIN</span>' : '<span class="user-role-badge">USER</span>'}</td>
+                        <td data-label="최근 접속">${fmtDateTime(u.lastLoginAt)}</td>
+                        <td data-label="가입일">${fmtDateTime(u.createdAt)}</td>
+                        <td data-label="관리">
                             <button class="btn btn-xs" data-edit="${u.id}">수정</button>
                             <button class="btn btn-xs btn-danger" data-del="${u.id}"${isSelf ? ' disabled title="자기 자신은 탈퇴 처리할 수 없습니다"' : ''}>탈퇴</button>
                         </td>
