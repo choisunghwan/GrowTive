@@ -13,6 +13,9 @@ public interface AuthMapper {
     /*소셜 로그인 - provider + providerId로 기존 회원 조회*/
     User findByProviderAndProviderId(@Param("provider") String provider, @Param("providerId") String providerId);
 
+    /*이미 로그인한 회원에게 소셜 계정 연결*/
+    void linkProvider(@Param("userId") Long userId, @Param("provider") String provider, @Param("providerId") String providerId);
+
     /*회원가입*/
     void insertUser(User user);
 

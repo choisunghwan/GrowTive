@@ -10,4 +10,6 @@ public interface AuthService {
     User login(String username, String password);
     /*소셜 로그인 - 최초 로그인이면 회원가입까지 자동 처리*/
     User loginOrCreateOAuthUser(String provider, String providerId, String nickname);
+    /*이미 로그인한 계정에 소셜 계정 연결*/
+    void linkOAuthAccount(Long userId, String provider, String providerId);
 }

@@ -24,6 +24,12 @@
 
     </select>
 
+    <update id="linkProvider">
+        UPDATE users
+        SET provider = #{provider}, provider_id = #{providerId}
+        WHERE id = #{userId}
+    </update>
+
     <insert id="insertUser">
 
         INSERT INTO users (

@@ -21,6 +21,9 @@ import ComparePage from '../pages/compare/compare.page.js';
 /*서비스 소개*/
 import AboutPage from '../pages/about/about.page.js';
 
+/*마이페이지*/
+import MyPage from '../pages/mypage/mypage.page.js';
+
 const routes = {
     /*홈 = 가계부*/
     '#/': LedgerPage,
@@ -36,6 +39,8 @@ const routes = {
     '#/compare': ComparePage,
     /*서비스 소개 - 로그인 없이도 볼 수 있음*/
     '#/about': AboutPage,
+    /*마이페이지*/
+    '#/mypage': MyPage,
 };
 
 /**
@@ -48,6 +53,7 @@ const authRequiredRoutes = [
     '#/admin/members',
     '#/friends',
     '#/compare',
+    '#/mypage',
 ];
 
 export async function navigate() {

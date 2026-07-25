@@ -50,6 +50,7 @@ public class AuthController {
         session.setAttribute("username", user.getUsername());
         session.setAttribute("displayName", user.getDisplayName());
         session.setAttribute("role", user.getRole());
+        session.setAttribute("provider", user.getProvider());
 
         // 🔒 로그인 유지: 체크 시 세션 쿠키를 브라우저 종료 후에도 30일간 유지되게 함
         if (request.isRememberMe()) {
@@ -78,6 +79,7 @@ public class AuthController {
         String username = (String) session.getAttribute("username");
         String displayName = (String) session.getAttribute("displayName");
         String role = (String) session.getAttribute("role");
+        String provider = (String) session.getAttribute("provider");
 
         if (userId == null) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
@@ -87,8 +89,25 @@ public class AuthController {
                 userId,
                 username,
                 displayName,
-                role
+                role,
+                provider
         );
+    }
+
+    /**
+     * 이미 로그인한 계정에 카카오 계정을 연결.
+     * 세션에 연결 대상 userId를 남겨두고 카카오 인가 화면으로 보낸 뒤,
+     * OAuth2LoginSuccessHandler에서 이 값을 보고 로그인이 아니라 "연결"로 처리한다.
+     */
+    @GetMapping("/link/kakao")
+    public void linkKakao(HttpSession session, HttpServletResponse response) throws java.io.IOException {
+        Long userId = (Long) session.getAttribute("userId");
+        if (userId == null) {
+            response.sendRedirect("/#/login");
+            return;
+        }
+        session.setAttribute("oauth2LinkUserId", userId);
+        response.sendRedirect("/oauth2/authorization/kakao");
     }
     @PostMapping("/logout")
     public void logout(HttpSession session) {

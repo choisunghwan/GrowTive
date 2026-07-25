@@ -94,4 +94,20 @@ public class AuthServiceImpl implements AuthService {
 
         return user;
     }
+
+    /**
+     * 이미 로그인한 계정에 소셜 계정 연결
+     * - 해당 provider/providerId가 이미 다른 계정에 연결되어 있으면 거부
+     */
+    @Override
+    public void linkOAuthAccount(Long userId, String provider, String providerId) {
+
+        User existing = authMapper.findByProviderAndProviderId(provider, providerId);
+
+        if (existing != null && !existing.getId().equals(userId)) {
+            throw new BadRequestException("이미 다른 계정에 연결된 카카오 계정입니다.");
+        }
+
+        authMapper.linkProvider(userId, provider, providerId);
+    }
 }

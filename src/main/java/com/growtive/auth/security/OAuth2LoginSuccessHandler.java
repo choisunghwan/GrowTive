@@ -1,6 +1,7 @@
 package com.growtive.auth.security;
 
 import com.growtive.auth.service.AuthService;
+import com.growtive.common.exception.BadRequestException;
 import com.growtive.user.model.User;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -40,14 +41,31 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
         Map<String, Object> attributes = oAuth2User.getAttributes();
         String providerId = String.valueOf(attributes.get("id"));
         String nickname = extractNickname(attributes);
-
-        User user = authService.loginOrCreateOAuthUser(registrationId.toUpperCase(), providerId, nickname);
+        String provider = registrationId.toUpperCase();
 
         HttpSession session = request.getSession();
+
+        // 이미 로그인한 상태에서 "계정 연결"로 들어온 경우 -> 기존 계정에 연결만 하고 세션은 그대로 둠
+        Long linkUserId = (Long) session.getAttribute("oauth2LinkUserId");
+        if (linkUserId != null) {
+            session.removeAttribute("oauth2LinkUserId");
+            try {
+                authService.linkOAuthAccount(linkUserId, provider, providerId);
+                session.setAttribute("provider", provider);
+                response.sendRedirect("/#/mypage?linked=1");
+            } catch (BadRequestException e) {
+                response.sendRedirect("/#/mypage?linkError=" + java.net.URLEncoder.encode(e.getMessage(), "UTF-8"));
+            }
+            return;
+        }
+
+        User user = authService.loginOrCreateOAuthUser(provider, providerId, nickname);
+
         session.setAttribute("userId", user.getId());
         session.setAttribute("username", user.getUsername());
         session.setAttribute("displayName", user.getDisplayName());
         session.setAttribute("role", user.getRole());
+        session.setAttribute("provider", user.getProvider());
 
         response.sendRedirect("/#/dashboard");
     }
