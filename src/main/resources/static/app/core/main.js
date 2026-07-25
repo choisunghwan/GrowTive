@@ -12,6 +12,7 @@ import { navigate } from './router.js';
 import { setupAxios } from './apiClient.js';
 import authStore from '../store/authStore.js';
 import { renderTopbarUser } from '../ui/topbar-user.js';
+import { initTopbarSalaryTicker } from '../ui/salary-ticker.js';
 /**
  * axios 전역 설정
  * - withCredentials
@@ -50,6 +51,9 @@ async function boot() {
 
     // 🔝 상단바 유저 표시
     renderTopbarUser();
+
+    // ⏱️ 상단바 실시간 급여 카운터
+    initTopbarSalaryTicker();
 
     // ⭐ 핵심 2: 기본 해시 없으면 대시보드로
     if (!location.hash) {

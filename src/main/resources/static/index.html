@@ -7,10 +7,10 @@
 
 
     <!-- favicon -->
-    <link rel="icon" href="/assets/img/favicon.ico?v=2" type="image/x-icon">
-    <link rel="shortcut icon" href="/assets/img/favicon.ico?v=2" type="image/x-icon">
-    <link rel="icon" href="/assets/img/icon-192.png?v=2" type="image/png" sizes="192x192">
-    <link rel="apple-touch-icon" href="/assets/img/icon-192.png?v=2">
+    <link rel="icon" href="/assets/img/favicon.ico?v=3" type="image/x-icon">
+    <link rel="shortcut icon" href="/assets/img/favicon.ico?v=3" type="image/x-icon">
+    <link rel="icon" href="/assets/img/icon-192.png?v=3" type="image/png" sizes="192x192">
+    <link rel="apple-touch-icon" href="/assets/img/icon-192.png?v=3">
 
     <!-- 📱 PWA -->
     <link rel="manifest" href="/manifest.json">
@@ -32,13 +32,20 @@
 </head>
 <body>
 <header class="topbar">
+    <!-- 🌈 급여/지출 게이지: 이번 달 월급 대비 번 돈(왼쪽, 초록) / 쓴 돈(오른쪽, 빨강) 비율 -->
+    <div class="topbar-gauge" id="topbar-gauge"></div>
+    <div class="topbar-gauge-expense" id="topbar-gauge-expense"></div>
+
     <button id="sidebar-toggle" class="sidebar-toggle-btn" type="button" aria-label="메뉴 열기" aria-expanded="false">
         ☰
     </button>
     <a href="#/dashboard" class="brand">
-        <img src="/assets/img/icon-192.png?v=2" alt="" class="brand-icon">
+        <img src="/assets/img/icon-192.png?v=3" alt="" class="brand-icon">
         GROWTIVE
     </a>
+
+    <!-- ⏱️ 실시간 급여 카운터 (월급 등록 + 근무 스케줄 설정 시에만 표시) -->
+    <div class="topbar-salary-ticker" id="topbar-salary-ticker"></div>
 
     <!-- ✅ 로그인 유저 영역 -->
     <div class="topbar-user" id="topbar-user"></div>

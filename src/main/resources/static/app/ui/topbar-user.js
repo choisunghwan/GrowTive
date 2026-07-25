@@ -1,4 +1,5 @@
 import authStore from '../store/authStore.js';
+import { stopTopbarSalaryTicker } from './salary-ticker.js';
 
 function renderAdminNav() {
     const isAdmin = authStore.user?.role === 'ADMIN';
@@ -38,6 +39,7 @@ export function renderTopbarUser() {
 
             // 1️⃣ 프론트 상태 초기화
             authStore.clear();
+            stopTopbarSalaryTicker();
 
             // 2️⃣ ⭐ 상단바 즉시 다시 그리기
             renderTopbarUser();

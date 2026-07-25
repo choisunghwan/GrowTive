@@ -5,6 +5,7 @@ import authStore from '../../store/authStore.js';
 
 // ✅ 상단바 유저 표시 렌더링 함수
 import { renderTopbarUser } from '../../ui/topbar-user.js';
+import { initTopbarSalaryTicker } from '../../ui/salary-ticker.js';
 
 export default function LoginPage() {
     return {
@@ -149,6 +150,7 @@ export default function LoginPage() {
                      * - 새로고침 없이 UI 업데이트
                      */
                     renderTopbarUser();
+                    initTopbarSalaryTicker();
 
                     /**
                      * 4️⃣ 로그인 후 이동

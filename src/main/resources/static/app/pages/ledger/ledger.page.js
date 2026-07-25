@@ -4,6 +4,8 @@
  * 같은 화면에서 "일정 캘린더" 모드로 전환하면 돈이 아닌 일반 일정(이벤트)을 등록할 수 있다.
  */
 
+import { initTopbarSalaryTicker } from '../../ui/salary-ticker.js';
+
 const EXPENSE_CATEGORIES = ['식비', '교통', '카페', '쇼핑', '월세', '주거통신', '의료', '문화', '기타'];
 const INCOME_CATEGORIES = ['월급', '부수입', '용돈', '이자/배당', '기타'];
 
@@ -717,6 +719,7 @@ export default function LedgerPage() {
                         await axios.delete(`/api/money/ledger/${btn.dataset.del}`);
                         if (state.editingId === Number(btn.dataset.del)) resetForm();
                         await refresh();
+                        initTopbarSalaryTicker();
                     };
                 });
                 $('dayTxList').querySelectorAll('button[data-edit]').forEach(btn => {
@@ -733,6 +736,7 @@ export default function LedgerPage() {
                         });
                         if (state.editingId === tx.id) resetForm();
                         await refresh();
+                        initTopbarSalaryTicker();
                     };
                 });
             }
@@ -841,6 +845,7 @@ export default function LedgerPage() {
                     resetForm();
                     setFormOpen(false);
                     await refresh();
+                    initTopbarSalaryTicker();
                 });
             }
 
