@@ -9,9 +9,17 @@ export default function AboutPage() {
         <section class="about-page">
 
           <div class="card about-hero">
-            <img src="/assets/img/icon-192.png?v=2" alt="" class="about-hero-icon">
+            <img src="/assets/img/icon-192.png?v=3" alt="" class="about-hero-icon">
             <h1 class="title">GROWTIVE</h1>
             <p class="subtitle">가계부와 일정을 한 곳에서, 가족·친구와 함께 관리하는 개인 재무·캘린더 서비스입니다.</p>
+          </div>
+
+          <div class="card about-feature about-feature--banner">
+            <img src="/assets/img/intro/intro-gauge.png" alt="상단바 실시간 급여·지출 게이지" class="about-feature-img about-feature-img--wide">
+            <div class="about-feature-text">
+              <h3>⏱️ 실시간 급여·지출 게이지</h3>
+              <p>상단바만 봐도 이번 달 상황이 한눈에 보여요. 월급은 근무 시간에 맞춰 왼쪽부터 초 단위로 차오르고, 가계부에 지출을 등록하면 오른쪽부터 바로 채워집니다. 마이페이지에서 근무 시간만 설정하면 바로 시작돼요.</p>
+            </div>
           </div>
 
           <div class="card about-feature">

@@ -47,9 +47,9 @@ export function renderTopbarUser() {
 
     // ✅ 로그인 된 상태
     el.innerHTML = `
-        <span class="topbar-username">
+        <a href="#/mypage" class="topbar-username">
             👤 ${authStore.user.displayName}님
-        </span>
+        </a>
         <button id="logout-btn" class="topbar-logout">
             로그아웃
         </button>

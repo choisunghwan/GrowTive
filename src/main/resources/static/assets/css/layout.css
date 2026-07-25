@@ -121,6 +121,11 @@ html.dark .topbar-salary-dot.is-working {
     font-size: 14px;
     font-weight: 600;
     color: var(--text);
+    cursor: pointer;
+    transition: color .15s ease;
+}
+.topbar-username:hover {
+    color: var(--brand);
 }
 
 .sidebar-logout-item {

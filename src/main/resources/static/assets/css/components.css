@@ -241,6 +241,12 @@ html.dark .user-role-badge { background: rgba(148, 163, 184, .18); color: #cbd5e
     max-width: 100%;
 }
 
+/* 가로로 넓은 스크린샷(상단바 게이지 등)은 옆이 아니라 위에 통짜로 얹는다 */
+.about-feature--banner .about-feature-img {
+    width: 100%;
+    max-width: 100%;
+}
+
 @media (min-width: 640px) {
     .about-feature {
         flex-direction: row;
@@ -257,6 +263,12 @@ html.dark .user-role-badge { background: rgba(148, 163, 184, .18); color: #cbd5e
     }
     .about-feature-img--wide {
         width: 420px;
+    }
+    .about-feature--banner {
+        flex-direction: column;
+    }
+    .about-feature--banner .about-feature-img {
+        width: 100%;
     }
 }
 
