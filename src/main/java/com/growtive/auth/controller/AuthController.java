@@ -5,6 +5,9 @@ import com.growtive.auth.dto.UserResponseDto;
 import com.growtive.auth.service.AuthService;
 
 import com.growtive.user.model.User;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -33,7 +36,9 @@ public class AuthController {
     @PostMapping("/login")
     public void login(
             @RequestBody LoginRequestDto request,
-            HttpSession session
+            HttpSession session,
+            HttpServletRequest httpRequest,
+            HttpServletResponse httpResponse
     ) {
 
         User user = authService.login(
@@ -45,6 +50,19 @@ public class AuthController {
         session.setAttribute("username", user.getUsername());
         session.setAttribute("displayName", user.getDisplayName());
         session.setAttribute("role", user.getRole());
+
+        // 🔒 로그인 유지: 체크 시 세션 쿠키를 브라우저 종료 후에도 30일간 유지되게 함
+        if (request.isRememberMe()) {
+            int thirtyDaysInSeconds = 60 * 60 * 24 * 30;
+            session.setMaxInactiveInterval(thirtyDaysInSeconds);
+
+            Cookie cookie = new Cookie("JSESSIONID", session.getId());
+            cookie.setPath("/");
+            cookie.setHttpOnly(true);
+            cookie.setSecure(httpRequest.isSecure());
+            cookie.setMaxAge(thirtyDaysInSeconds);
+            httpResponse.addCookie(cookie);
+        }
     }
 
     /**

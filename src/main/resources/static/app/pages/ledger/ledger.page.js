@@ -535,8 +535,12 @@ export default function LedgerPage() {
                     <h4 class="ledger-section-label" id="daySectionLabel">${isSchedule() ? '등록된 일정' : '등록된 내역'}</h4>
                     <div id="dayTxList">${isSchedule() ? renderEventDayList() : renderDayList()}</div>
                     <div class="ledger-form-panel">
-                        <h4 class="ledger-section-label" id="formSectionLabel">${isSchedule() ? '일정 추가' : '내역 추가'}</h4>
-                        <div id="entryFormArea">${isSchedule() ? eventFormHtml() : moneyFormHtml()}</div>
+                        <button type="button" class="ledger-form-toggle-btn" id="formToggleBtn">
+                            <span id="formToggleBtnText">+ ${isSchedule() ? '일정' : '내역'} 추가</span>
+                        </button>
+                        <div id="entryFormWrap" style="display:none;">
+                            <div id="entryFormArea">${isSchedule() ? eventFormHtml() : moneyFormHtml()}</div>
+                        </div>
                     </div>
                 </div>
             </section>`;
@@ -581,6 +585,7 @@ export default function LedgerPage() {
                 state.selectedDate = lo;
                 resetEventForm();
                 $('evtEndDate').value = hi;
+                setFormOpen(false);
                 renderCalendar();
                 renderDayPanel();
             }
@@ -682,6 +687,7 @@ export default function LedgerPage() {
             function selectDate(dateStr) {
                 state.selectedDate = dateStr;
                 if (isSchedule()) resetEventForm(); else resetForm();
+                setFormOpen(false);
                 renderCalendar();
                 renderDayPanel();
             }
@@ -730,6 +736,7 @@ export default function LedgerPage() {
                 $('txSubmitBtn').textContent = '수정 완료';
                 $('txCancelBtn').style.display = '';
                 $('txRecurringLabel').style.display = 'none';
+                setFormOpen(true);
                 $('txAmount').focus();
             }
 
@@ -750,7 +757,7 @@ export default function LedgerPage() {
                 });
 
                 $('txAmount').addEventListener('input', () => formatAmountInput($('txAmount')));
-                $('txCancelBtn').addEventListener('click', () => resetForm());
+                $('txCancelBtn').addEventListener('click', () => { resetForm(); setFormOpen(false); });
 
                 $('txForm').addEventListener('submit', async (e) => {
                     e.preventDefault();
@@ -777,6 +784,7 @@ export default function LedgerPage() {
                     }
 
                     resetForm();
+                    setFormOpen(false);
                     await refresh();
                 });
             }
@@ -816,6 +824,7 @@ export default function LedgerPage() {
 
                 $('evtSubmitBtn').textContent = '수정 완료';
                 $('evtCancelBtn').style.display = '';
+                setFormOpen(true);
                 $('evtTitle').focus();
             }
 
@@ -827,7 +836,7 @@ export default function LedgerPage() {
                     });
                 });
 
-                $('evtCancelBtn').addEventListener('click', () => resetEventForm());
+                $('evtCancelBtn').addEventListener('click', () => { resetEventForm(); setFormOpen(false); });
 
                 $('eventForm').addEventListener('submit', async (e) => {
                     e.preventDefault();
@@ -857,12 +866,19 @@ export default function LedgerPage() {
                     }
 
                     resetEventForm();
+                    setFormOpen(false);
                     await refresh();
                 });
             }
 
+            function setFormOpen(open) {
+                $('entryFormWrap').style.display = open ? '' : 'none';
+                $('formToggleBtnText').textContent = open
+                    ? '접기'
+                    : `+ ${isSchedule() ? '일정' : '내역'} 추가`;
+            }
+
             function renderFormArea() {
-                $('formSectionLabel').textContent = isSchedule() ? '일정 추가' : '내역 추가';
                 $('entryFormArea').innerHTML = isSchedule() ? eventFormHtml() : moneyFormHtml();
                 if (isSchedule()) {
                     bindEventForm();
@@ -871,6 +887,7 @@ export default function LedgerPage() {
                     bindMoneyForm();
                     resetForm();
                 }
+                setFormOpen(false);
             }
 
             async function refresh() {
@@ -924,6 +941,11 @@ export default function LedgerPage() {
                     renderFormArea();
                     renderDayPanel();
                 });
+            });
+
+            $('formToggleBtn').addEventListener('click', () => {
+                const isOpen = $('entryFormWrap').style.display !== 'none';
+                setFormOpen(!isOpen);
             });
 
             if (isSchedule()) {

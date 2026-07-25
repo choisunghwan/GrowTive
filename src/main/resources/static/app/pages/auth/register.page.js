@@ -56,6 +56,10 @@ export default function RegisterPage() {
 
                     </form>
 
+                    <p class="login-desc"> 이미 계정이 있으신가요?
+                        <a href="#/login">로그인으로 돌아가기</a>
+                    </p>
+
                 </div>
             `;
         },

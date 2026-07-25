@@ -43,10 +43,15 @@ export default function LoginPage() {
                             required
                         />
 
-                        <!-- 아이디 기억하기 -->
-                        <label class="login-remember">
-                            <input type="checkbox" id="rememberId"> 아이디 기억하기
-                        </label>
+                        <!-- 아이디 기억하기 / 로그인 유지 -->
+                        <div class="login-remember-row">
+                            <label class="login-remember">
+                                <input type="checkbox" id="rememberId"> 아이디 기억하기
+                            </label>
+                            <label class="login-remember">
+                                <input type="checkbox" id="keepLoggedIn"> 로그인 유지
+                            </label>
+                        </div>
 
                         <!-- 로그인 버튼 -->
                         <button type="submit" class="login-btn">
@@ -81,6 +86,7 @@ export default function LoginPage() {
             const userIdInput = document.getElementById('userId');
             const passwordInput = document.getElementById('password');
             const rememberInput = document.getElementById('rememberId');
+            const keepLoggedInInput = document.getElementById('keepLoggedIn');
 
             const rememberedId = localStorage.getItem(REMEMBER_KEY);
             if (rememberedId) {
@@ -111,7 +117,8 @@ export default function LoginPage() {
                      */
                     await axios.post('/api/auth/login', {
                         username: userId,
-                        password: password
+                        password: password,
+                        rememberMe: keepLoggedInInput.checked
                     });
 
                     if (rememberInput.checked) {
