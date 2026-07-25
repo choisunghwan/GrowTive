@@ -133,8 +133,8 @@ export default function LedgerPage() {
     function isSchedule() { return state.mode === 'schedule'; }
 
     function gridContainerClass() {
-        if (isSchedule()) return 'ledger-grid ledger-grid--schedule';
-        return state.viewMode === 'list' ? 'ledger-list-wrap' : 'ledger-grid';
+        if (state.viewMode === 'list') return 'ledger-list-wrap';
+        return isSchedule() ? 'ledger-grid ledger-grid--schedule' : 'ledger-grid';
     }
 
     function groupByDate() {
@@ -365,8 +365,53 @@ export default function LedgerPage() {
         }).join('')}</div>`;
     }
 
+    function renderScheduleListView() {
+        const byDate = {};
+        for (const ev of state.events) {
+            (byDate[ev.startDate] = byDate[ev.startDate] || []).push(ev);
+        }
+        const dates = Object.keys(byDate).sort();
+        if (dates.length === 0) {
+            return `<div class="hint">이번 달 등록된 일정이 없습니다.</div>`;
+        }
+        return `<div class="ledger-list-view">${dates.map(dateStr => {
+            const list = [...byDate[dateStr]].sort((a, b) => {
+                if (!a.time) return 1;
+                if (!b.time) return -1;
+                return a.time.localeCompare(b.time);
+            });
+            const isSelected = dateStr === state.selectedDate;
+            const dayNum = Number(dateStr.split('-')[2]);
+            const weekday = new Date(dateStr).getDay();
+            const weekdayName = ['일', '월', '화', '수', '목', '금', '토'][weekday];
+            const holidayName = HOLIDAYS[dateStr];
+
+            const dateClasses = ['ledger-list-date'];
+            if (holidayName) dateClasses.push('ledger-list-date--holiday');
+            else if (weekday === 0) dateClasses.push('ledger-list-date--sunday');
+            else if (weekday === 6) dateClasses.push('ledger-list-date--saturday');
+
+            return `
+            <div class="ledger-list-group${isSelected ? ' is-selected' : ''}" data-date="${dateStr}">
+                <div class="ledger-list-date-row">
+                    <span class="${dateClasses.join(' ')}">${dayNum}일 (${weekdayName})${holidayName ? ` · ${holidayName}` : ''}</span>
+                </div>
+                <ul class="ledger-list-items">
+                    ${list.map(ev => `
+                        <li class="ledger-list-item">
+                            <span class="ledger-list-item-category"><span class="ledger-event-dot" style="background:${colorTagHex(ev.colorTag)}"></span> ${ev.title}${eventRangeBadge(ev)}</span>
+                            <span class="ledger-list-item-memo">${ev.time ? `${ev.time.slice(0, 5)} · ` : ''}${ev.memo ? ev.memo : ''}</span>
+                        </li>
+                    `).join('')}
+                </ul>
+            </div>`;
+        }).join('')}</div>`;
+    }
+
     function renderMainView() {
-        if (isSchedule()) return renderScheduleCalendarGrid();
+        if (isSchedule()) {
+            return state.viewMode === 'list' ? renderScheduleListView() : renderScheduleCalendarGrid();
+        }
         return state.viewMode === 'list' ? renderListView() : renderCalendarGrid();
     }
 
@@ -513,7 +558,7 @@ export default function LedgerPage() {
                             <button id="nextMonth" class="ledger-nav-btn" type="button" aria-label="다음 달">▶</button>
                         </div>
                         <div class="ledger-header-controls">
-                            <div class="ledger-switch" id="viewSwitch" style="${isSchedule() ? 'display:none;' : ''}">
+                            <div class="ledger-switch" id="viewSwitch">
                                 <button type="button" class="ledger-switch-btn${state.viewMode !== 'list' ? ' is-active' : ''}" data-view="calendar">${ICON_CALENDAR} 달력</button>
                                 <button type="button" class="ledger-switch-btn${state.viewMode === 'list' ? ' is-active' : ''}" data-view="list">${ICON_LIST} 목록</button>
                             </div>
@@ -620,7 +665,7 @@ export default function LedgerPage() {
                 container.className = gridContainerClass();
                 container.innerHTML = renderMainView();
 
-                if (isSchedule()) {
+                if (isSchedule() && state.viewMode !== 'list') {
                     container.querySelectorAll('.ledger-cell[data-date]').forEach(cell => {
                         cell.addEventListener('pointerdown', (e) => {
                             e.preventDefault();
@@ -935,7 +980,6 @@ export default function LedgerPage() {
                     state.mode = next;
                     localStorage.setItem(MODE_KEY, state.mode);
                     updateSwitchActive('modeSwitch', 'mode', next);
-                    $('viewSwitch').style.display = isSchedule() ? 'none' : '';
                     $('monthSummary').style.display = isSchedule() ? 'none' : '';
                     renderCalendar();
                     renderFormArea();
