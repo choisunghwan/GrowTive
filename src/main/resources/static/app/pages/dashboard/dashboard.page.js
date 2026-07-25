@@ -25,6 +25,15 @@ export default function DashboardPage() {
             </div>
           </div>
 
+          <!-- ⏱️ 실시간 급여 카운터 -->
+          <div class="card" style="margin-top:20px;">
+            <h3>⏱️ 실시간 급여 카운터</h3>
+            <div style="font-size:13px; opacity:0.75; margin-top:6px;">
+              이번 달 등록된 월급을 근무 시간에 맞춰 초 단위로 쌓아 보여줍니다. (마이페이지에서 근무 시간을 설정하세요)
+            </div>
+            <div id="salaryTickerCard" style="margin-top:14px;"></div>
+          </div>
+
           <!-- 🔥 월급 흐름 -->
           <div class="card" style="margin-top:20px;">
             <h3>월급 흐름</h3>
@@ -71,6 +80,129 @@ export default function DashboardPage() {
             this.renderMonthLabel();
 
             await this.refreshAll();
+            await this.initSalaryTicker();
+        },
+
+        /* ---------------- 실시간 급여 카운터 ---------------- */
+
+        async initSalaryTicker() {
+            if (window.__salaryTickerInterval) {
+                clearInterval(window.__salaryTickerInterval);
+                window.__salaryTickerInterval = null;
+            }
+
+            const el = document.getElementById("salaryTickerCard");
+            if (!el) return;
+
+            const now = new Date();
+            let transactions, schedule;
+            try {
+                const [txRes, scheduleRes] = await Promise.all([
+                    axios.get("/api/money/ledger", { params: { year: now.getFullYear(), month: now.getMonth() + 1 } }),
+                    axios.get("/api/auth/work-schedule")
+                ]);
+                transactions = txRes.data;
+                schedule = scheduleRes.data;
+            } catch (e) {
+                el.innerHTML = `<div class="hint">급여 정보를 불러오지 못했습니다.</div>`;
+                return;
+            }
+
+            const salaryTx = transactions.find(tx => tx.type === "INCOME" && tx.category === "월급");
+            if (!salaryTx) {
+                el.innerHTML = `<div class="hint">이번 달에 등록된 "월급" 항목이 없어요. 가계부에서 "매달 반복"으로 월급을 등록하면 여기서 실시간으로 보여줍니다.</div>`;
+                return;
+            }
+
+            const salaryAmount = Number(salaryTx.amount);
+            const payDay = Number(salaryTx.date.split("-")[2]);
+            const workDays = (schedule.workDays || "MON,TUE,WED,THU,FRI").split(",");
+            const [wsH, wsM] = (schedule.workStartTime || "09:00:00").split(":").map(Number);
+            const [weH, weM] = (schedule.workEndTime || "18:00:00").split(":").map(Number);
+            const DAY_MAP = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
+
+            const isWorkDay = (date) => workDays.includes(DAY_MAP[date.getDay()]);
+            const daySeconds = (date) => {
+                if (!isWorkDay(date)) return 0;
+                return Math.max(0, (weH * 3600 + weM * 60) - (wsH * 3600 + wsM * 60));
+            };
+
+            const periodBounds = (refDate) => {
+                let start = new Date(refDate.getFullYear(), refDate.getMonth(), payDay, 0, 0, 0);
+                if (start > refDate) {
+                    start = new Date(refDate.getFullYear(), refDate.getMonth() - 1, payDay, 0, 0, 0);
+                }
+                const end = new Date(start.getFullYear(), start.getMonth() + 1, payDay, 0, 0, 0);
+                return { start, end };
+            };
+
+            const totalWorkSeconds = (periodStart, periodEnd) => {
+                let total = 0;
+                const cursor = new Date(periodStart);
+                cursor.setHours(0, 0, 0, 0);
+                const endDay = new Date(periodEnd);
+                endDay.setHours(0, 0, 0, 0);
+                while (cursor < endDay) {
+                    total += daySeconds(cursor);
+                    cursor.setDate(cursor.getDate() + 1);
+                }
+                return total;
+            };
+
+            const elapsedWorkSeconds = (periodStart, nowTick) => {
+                let total = 0;
+                const cursor = new Date(periodStart);
+                cursor.setHours(0, 0, 0, 0);
+                const today = new Date(nowTick);
+                today.setHours(0, 0, 0, 0);
+                while (cursor < today) {
+                    total += daySeconds(cursor);
+                    cursor.setDate(cursor.getDate() + 1);
+                }
+                if (isWorkDay(nowTick)) {
+                    const startOfWork = new Date(nowTick.getFullYear(), nowTick.getMonth(), nowTick.getDate(), wsH, wsM, 0);
+                    const endOfWork = new Date(nowTick.getFullYear(), nowTick.getMonth(), nowTick.getDate(), weH, weM, 0);
+                    if (nowTick >= startOfWork) {
+                        const clamped = nowTick < endOfWork ? nowTick : endOfWork;
+                        total += (clamped - startOfWork) / 1000;
+                    }
+                }
+                return total;
+            };
+
+            el.innerHTML = `
+                <div style="text-align:center;">
+                    <div id="salaryTickerClock" style="font-size:13px; color:var(--text-muted);"></div>
+                    <div id="salaryTickerAmount" style="font-size:34px; font-weight:800; color:var(--brand); margin:6px 0;"></div>
+                    <div id="salaryTickerStatus" style="font-size:13px;"></div>
+                </div>
+            `;
+
+            const tick = () => {
+                const amountEl = document.getElementById("salaryTickerAmount");
+                if (!amountEl) {
+                    clearInterval(window.__salaryTickerInterval);
+                    return;
+                }
+                const nowTick = new Date();
+                const { start, end } = periodBounds(nowTick);
+                const total = totalWorkSeconds(start, end);
+                const elapsed = Math.min(elapsedWorkSeconds(start, nowTick), total);
+                const earned = total > 0 ? Math.floor(salaryAmount * (elapsed / total)) : 0;
+
+                const todayIsWorkDay = isWorkDay(nowTick);
+                const startOfWork = new Date(nowTick.getFullYear(), nowTick.getMonth(), nowTick.getDate(), wsH, wsM, 0);
+                const endOfWork = new Date(nowTick.getFullYear(), nowTick.getMonth(), nowTick.getDate(), weH, weM, 0);
+                const workingNow = todayIsWorkDay && nowTick >= startOfWork && nowTick < endOfWork;
+
+                amountEl.textContent = `${earned.toLocaleString("ko-KR")}원`;
+                document.getElementById("salaryTickerStatus").textContent =
+                    workingNow ? "🟢 근무 중" : (todayIsWorkDay ? "⚪ 근무 시간 아님" : "🌴 휴무일");
+                document.getElementById("salaryTickerClock").textContent = nowTick.toLocaleTimeString("ko-KR");
+            };
+
+            tick();
+            window.__salaryTickerInterval = setInterval(tick, 1000);
         },
 
         /* ---------------- 공통 ---------------- */

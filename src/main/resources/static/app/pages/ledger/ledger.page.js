@@ -123,6 +123,8 @@ export default function LedgerPage() {
         events: [],               // 이번 달 전체 (일정)
         eventsByDate: {},         // { 'YYYY-MM-DD': [event, ...] }
         selectedDate: todayYmd(),
+        selectedRangeStart: null,
+        selectedRangeEnd: null,
         editingId: null,
         editingOriginalRecurring: false,
         editingEventId: null,
@@ -226,8 +228,12 @@ export default function LedgerPage() {
         const weekday = idx % 7; // 0=일, 6=토
         const holidayName = HOLIDAYS[dateStr];
 
+        const inSelectedRange = state.selectedRangeStart && state.selectedRangeEnd
+            && dateStr >= state.selectedRangeStart && dateStr <= state.selectedRangeEnd;
+
         const classes = ['ledger-cell'];
         if (isSelected) classes.push('ledger-cell--selected');
+        if (inSelectedRange) classes.push('ledger-cell--range-selected');
         if (isToday) classes.push('ledger-cell--today');
         if (holidayName) classes.push('ledger-cell--holiday');
         else if (weekday === 0) classes.push('ledger-cell--sunday');
@@ -628,6 +634,8 @@ export default function LedgerPage() {
 
             function selectDateRange(lo, hi) {
                 state.selectedDate = lo;
+                state.selectedRangeStart = lo;
+                state.selectedRangeEnd = hi;
                 resetEventForm();
                 $('evtEndDate').value = hi;
                 setFormOpen(false);
@@ -731,6 +739,8 @@ export default function LedgerPage() {
 
             function selectDate(dateStr) {
                 state.selectedDate = dateStr;
+                state.selectedRangeStart = isSchedule() ? dateStr : null;
+                state.selectedRangeEnd = isSchedule() ? dateStr : null;
                 if (isSchedule()) resetEventForm(); else resetForm();
                 setFormOpen(false);
                 renderCalendar();
@@ -978,6 +988,8 @@ export default function LedgerPage() {
                     const next = btn.dataset.mode === 'schedule' ? 'schedule' : 'money';
                     if (state.mode === next) return;
                     state.mode = next;
+                    state.selectedRangeStart = null;
+                    state.selectedRangeEnd = null;
                     localStorage.setItem(MODE_KEY, state.mode);
                     updateSwitchActive('modeSwitch', 'mode', next);
                     $('monthSummary').style.display = isSchedule() ? 'none' : '';

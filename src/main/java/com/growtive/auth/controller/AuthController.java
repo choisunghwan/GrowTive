@@ -2,6 +2,7 @@ package com.growtive.auth.controller;
 
 import com.growtive.auth.dto.LoginRequestDto;
 import com.growtive.auth.dto.UserResponseDto;
+import com.growtive.auth.dto.WorkScheduleDto;
 import com.growtive.auth.service.AuthService;
 
 import com.growtive.user.model.User;
@@ -108,6 +109,30 @@ public class AuthController {
         }
         session.setAttribute("oauth2LinkUserId", userId);
         response.sendRedirect("/oauth2/authorization/kakao");
+    }
+
+    /**
+     * 실시간 급여 카운터에 쓰이는 근무 스케줄 조회/저장
+     */
+    @GetMapping("/work-schedule")
+    public WorkScheduleDto getWorkSchedule(HttpSession session) {
+        Long userId = (Long) session.getAttribute("userId");
+        if (userId == null) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+
+        User user = authService.getUserById(userId);
+        WorkScheduleDto dto = new WorkScheduleDto();
+        dto.setWorkStartTime(user.getWorkStartTime());
+        dto.setWorkEndTime(user.getWorkEndTime());
+        dto.setWorkDays(user.getWorkDays());
+        return dto;
+    }
+
+    @PutMapping("/work-schedule")
+    public void updateWorkSchedule(@RequestBody WorkScheduleDto request, HttpSession session) {
+        Long userId = (Long) session.getAttribute("userId");
+        if (userId == null) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+
+        authService.updateWorkSchedule(userId, request.getWorkStartTime(), request.getWorkEndTime(), request.getWorkDays());
     }
     @PostMapping("/logout")
     public void logout(HttpSession session) {

@@ -286,6 +286,7 @@ html.dark .money-stat--remain { --stat-accent: #2dd4bf; }
     -webkit-user-select: none;
 }
 .ledger-cell--drag { background: rgba(124, 58, 237, .14); border-color: #7c3aed; }
+.ledger-cell--range-selected { background: rgba(124, 58, 237, .14); border-color: #7c3aed; }
 
 .ledger-cell-day { font-size: 13px; font-weight: 700; }
 .ledger-cell-expense,
@@ -340,7 +341,33 @@ html.dark .money-stat--remain { --stat-accent: #2dd4bf; }
 .ledger-color-picker { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; padding: 4px 0; }
 
 .ledger-daterange { display: flex; align-items: center; gap: 8px; }
-.ledger-daterange input[type="date"] { flex: 1 1 0; width: auto; min-width: 0; }
+.ledger-daterange input[type="date"],
+.ledger-daterange input[type="time"] { flex: 1 1 0; width: auto; min-width: 0; }
+
+.work-days-picker { display: flex; flex-wrap: wrap; gap: 8px; margin: 4px 0; }
+/* .form label { display:block } 보다 특이성을 높여야 label인 .work-day-chip에 flex가 먹음 */
+.work-days-picker .work-day-chip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    margin: 0;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    background: var(--bg-elevated);
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-muted);
+    transition: background .15s ease, color .15s ease, border-color .15s ease;
+}
+.work-days-picker .work-day-chip input[type="checkbox"] { display: none; }
+.work-days-picker .work-day-chip:has(input:checked) {
+    background: var(--brand);
+    border-color: var(--brand);
+    color: #fff;
+}
 .ledger-daterange-sep { color: var(--text-muted); font-weight: 600; flex-shrink: 0; }
 
 .ledger-event-range {
@@ -504,6 +531,7 @@ html.dark .ledger-form-toggle-btn:hover {
 /* 다크모드: 수입/지출 색상만 어두운 배경에 맞게 보정 */
 html.dark .ledger-cell--selected { background: #1e2a3d; }
 html.dark .ledger-cell--drag { background: rgba(124, 58, 237, .3); }
+html.dark .ledger-cell--range-selected { background: rgba(124, 58, 237, .3); }
 html.dark .ledger-cell-expense,
 html.dark .ledger-tx-amount.is-expense,
 html.dark .is-expense { color: #fca5a5; }

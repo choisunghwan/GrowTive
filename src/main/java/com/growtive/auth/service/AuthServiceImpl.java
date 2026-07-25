@@ -8,6 +8,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalTime;
+
 @Service
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
@@ -109,5 +111,15 @@ public class AuthServiceImpl implements AuthService {
         }
 
         authMapper.linkProvider(userId, provider, providerId);
+    }
+
+    @Override
+    public User getUserById(Long userId) {
+        return authMapper.findById(userId);
+    }
+
+    @Override
+    public void updateWorkSchedule(Long userId, LocalTime workStartTime, LocalTime workEndTime, String workDays) {
+        authMapper.updateWorkSchedule(userId, workStartTime, workEndTime, workDays);
     }
 }

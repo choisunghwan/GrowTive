@@ -4,11 +4,22 @@ import com.growtive.user.model.User;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
+import java.time.LocalTime;
+
 @Mapper
 public interface AuthMapper {
 
     /*로그인*/
     User findByUsername(String username);
+
+    /*id로 조회 (근무 스케줄 등 세션에 없는 최신 정보 조회용)*/
+    User findById(@Param("id") Long id);
+
+    /*실시간 급여 카운터용 근무 스케줄 저장*/
+    void updateWorkSchedule(@Param("userId") Long userId,
+                             @Param("workStartTime") LocalTime workStartTime,
+                             @Param("workEndTime") LocalTime workEndTime,
+                             @Param("workDays") String workDays);
 
     /*소셜 로그인 - provider + providerId로 기존 회원 조회*/
     User findByProviderAndProviderId(@Param("provider") String provider, @Param("providerId") String providerId);

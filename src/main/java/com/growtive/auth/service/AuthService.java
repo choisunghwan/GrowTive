@@ -2,6 +2,8 @@ package com.growtive.auth.service;
 
 import com.growtive.user.model.User;
 
+import java.time.LocalTime;
+
 public interface AuthService {
 
     /*회원가입*/
@@ -12,4 +14,9 @@ public interface AuthService {
     User loginOrCreateOAuthUser(String provider, String providerId, String nickname);
     /*이미 로그인한 계정에 소셜 계정 연결*/
     void linkOAuthAccount(Long userId, String provider, String providerId);
+
+    /*실시간 급여 카운터용 근무 스케줄 조회*/
+    User getUserById(Long userId);
+    /*실시간 급여 카운터용 근무 스케줄 저장*/
+    void updateWorkSchedule(Long userId, LocalTime workStartTime, LocalTime workEndTime, String workDays);
 }
