@@ -64,4 +64,34 @@ public class AuthServiceImpl implements AuthService {
 
         return user;
     }
+
+    /**
+     * 소셜 로그인 (카카오 등)
+     * - provider + providerId로 기존 회원이면 그대로 로그인
+     * - 없으면 닉네임만으로 회원가입 처리 (username/email/password는 자동 생성되는 형식적인 값)
+     */
+    @Override
+    public User loginOrCreateOAuthUser(String provider, String providerId, String nickname) {
+
+        User user = authMapper.findByProviderAndProviderId(provider, providerId);
+
+        if (user == null) {
+            User newUser = new User();
+            newUser.setProvider(provider);
+            newUser.setProviderId(providerId);
+            newUser.setDisplayName(nickname != null && !nickname.isBlank() ? nickname : provider + " 사용자");
+            newUser.setUsername(provider.toLowerCase() + "_" + providerId);
+            newUser.setEmail(provider.toLowerCase() + "_" + providerId + "@growtive.local");
+            // 🔐 소셜 로그인 계정은 아이디/비밀번호로 로그인할 수 없도록 임의의 값으로 암호화
+            newUser.setPassword(passwordEncoder.encode(java.util.UUID.randomUUID().toString()));
+
+            authMapper.insertUser(newUser);
+
+            user = authMapper.findByProviderAndProviderId(provider, providerId);
+        }
+
+        authMapper.updateLastLogin(user.getId());
+
+        return user;
+    }
 }

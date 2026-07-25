@@ -175,6 +175,48 @@
     transform: scale(0.98);
 }
 
+/* ============================= */
+/* 📌 소셜 로그인 구분선 + 카카오 버튼 */
+/* ============================= */
+
+.login-divider {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 18px 0 12px;
+    color: var(--text-muted);
+    font-size: 12.5px;
+}
+.login-divider::before,
+.login-divider::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+}
+
+.kakao-login-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    height: 48px;
+    border-radius: var(--radius-sm);
+    background: #FEE500;
+    color: #191600;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: opacity .15s ease;
+}
+.kakao-login-btn:hover {
+    opacity: 0.9;
+}
+.kakao-login-icon {
+    font-size: 17px;
+}
+
 
 /* ============================= */
 /* 📌 하단 설명 */

@@ -60,6 +60,12 @@ export default function LoginPage() {
 
                     </form>
 
+                    <div class="login-divider"><span>또는</span></div>
+
+                    <a href="/oauth2/authorization/kakao" class="kakao-login-btn">
+                        <span class="kakao-login-icon">💬</span> 카카오로 로그인
+                    </a>
+
                     <p class="login-desc">
                         계정 아이디와 비밀번호를 입력하세요
                     </p>

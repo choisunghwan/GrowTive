@@ -32,6 +32,9 @@ dependencies {
 	// 회원가입 & 로그인 암호화
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 
+	// 카카오 소셜 로그인
+	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+
 	// --- MyBatis + JDBC
 	implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.3'
 	implementation 'org.springframework.boot:spring-boot-starter-jdbc'

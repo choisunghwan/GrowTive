@@ -14,19 +14,33 @@
 
     </select>
 
+    <select id="findByProviderAndProviderId"
+            resultType="com.growtive.user.model.User">
+
+        SELECT *
+        FROM users
+        WHERE provider = #{provider}
+          AND provider_id = #{providerId}
+
+    </select>
+
     <insert id="insertUser">
 
         INSERT INTO users (
             username,
             password,
             display_name,
-            email
+            email,
+            provider,
+            provider_id
         )
         VALUES (
                    #{username},
                    #{password},
                    #{displayName},
-                   #{email}
+                   #{email},
+                   #{provider},
+                   #{providerId}
                )
 
     </insert>

@@ -10,6 +10,9 @@ public interface AuthMapper {
     /*로그인*/
     User findByUsername(String username);
 
+    /*소셜 로그인 - provider + providerId로 기존 회원 조회*/
+    User findByProviderAndProviderId(@Param("provider") String provider, @Param("providerId") String providerId);
+
     /*회원가입*/
     void insertUser(User user);
 
