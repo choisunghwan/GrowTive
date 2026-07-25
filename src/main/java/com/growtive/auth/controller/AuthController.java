@@ -26,17 +26,6 @@ public class AuthController {
 
     /**
      * 작성자: 최성환
-     * @param token
-     * @return
-     */
-//    @GetMapping("/verify")
-//    public AuthService.VerifyResult verify(@RequestParam String token) {
-//        return authService.verifyMagicLink(token);
-//    }
-
-
-    /**
-     * 작성자: 최성환
      * 세션에 LOGIN_USER 저장
      * @param LoginRequestDto
      * @param session
@@ -55,6 +44,7 @@ public class AuthController {
         session.setAttribute("userId", user.getId());
         session.setAttribute("username", user.getUsername());
         session.setAttribute("displayName", user.getDisplayName());
+        session.setAttribute("role", user.getRole());
     }
 
     /**
@@ -69,6 +59,7 @@ public class AuthController {
         Long userId = (Long) session.getAttribute("userId");
         String username = (String) session.getAttribute("username");
         String displayName = (String) session.getAttribute("displayName");
+        String role = (String) session.getAttribute("role");
 
         if (userId == null) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
@@ -77,7 +68,8 @@ public class AuthController {
         return new UserResponseDto(
                 userId,
                 username,
-                displayName
+                displayName,
+                role
         );
     }
     @PostMapping("/logout")

@@ -31,4 +31,8 @@
 
     </insert>
 
+    <update id="updateLastLogin">
+        UPDATE users SET last_login_at = NOW() WHERE id = #{userId}
+    </update>
+
 </mapper>

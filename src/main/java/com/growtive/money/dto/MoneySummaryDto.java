@@ -9,6 +9,5 @@ public class MoneySummaryDto {
 
     private Long totalIncome;
     private Long totalExpense;
-    private Long totalAssetInvestment;
     private Long remaining;
 }

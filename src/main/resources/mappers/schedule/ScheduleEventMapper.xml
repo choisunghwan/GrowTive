@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.growtive.schedule.mapper.ScheduleEventMapper">
+
+    <resultMap id="ScheduleEventMap" type="com.growtive.schedule.dto.ScheduleEventDto">
+        <id     column="id"          property="id"/>
+        <result column="start_date"  property="startDate"/>
+        <result column="end_date"    property="endDate"/>
+        <result column="event_time"  property="time"/>
+        <result column="title"       property="title"/>
+        <result column="memo"        property="memo"/>
+        <result column="color_tag"   property="colorTag"/>
+        <result column="is_hidden"   property="hidden"/>
+    </resultMap>
+
+    <select id="findOverlapping" resultMap="ScheduleEventMap">
+        SELECT id, start_date, end_date, event_time, title, memo, color_tag, is_hidden
+        FROM schedule_event
+        WHERE user_id = #{userId}
+          AND start_date &lt;= #{monthEnd}
+          AND end_date &gt;= #{monthStart}
+        ORDER BY start_date, event_time IS NULL, event_time, id
+    </select>
+
+    <select id="findById" resultMap="ScheduleEventMap">
+        SELECT id, start_date, end_date, event_time, title, memo, color_tag, is_hidden
+        FROM schedule_event
+        WHERE id = #{id} AND user_id = #{userId}
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="dto.id">
+        INSERT INTO schedule_event (user_id, start_date, end_date, event_time, title, memo, color_tag, is_hidden)
+        VALUES (#{userId}, #{dto.startDate}, #{dto.endDate}, #{dto.time}, #{dto.title}, #{dto.memo}, #{dto.colorTag}, #{dto.hidden})
+    </insert>
+
+    <update id="update">
+        UPDATE schedule_event
+        SET start_date = #{dto.startDate},
+            end_date = #{dto.endDate},
+            event_time = #{dto.time},
+            title = #{dto.title},
+            memo = #{dto.memo},
+            color_tag = #{dto.colorTag},
+            is_hidden = #{dto.hidden}
+        WHERE id = #{id} AND user_id = #{userId}
+    </update>
+
+    <delete id="delete">
+        DELETE FROM schedule_event WHERE id = #{id} AND user_id = #{userId}
+    </delete>
+
+    <!-- 친구 캘린더 비교용: 숨긴 항목 제외, sinceDate~untilDate 범위 내만 -->
+    <select id="findVisibleOverlapping" resultMap="ScheduleEventMap">
+        SELECT id, start_date, end_date, event_time, title, memo, color_tag, is_hidden
+        FROM schedule_event
+        WHERE user_id = #{userId}
+          AND start_date &lt;= #{monthEnd}
+          AND end_date &gt;= #{monthStart}
+          AND is_hidden = FALSE
+          <if test="sinceDate != null">
+              AND end_date &gt;= #{sinceDate}
+          </if>
+          <if test="untilDate != null">
+              AND start_date &lt;= #{untilDate}
+          </if>
+        ORDER BY start_date, event_time IS NULL, event_time, id
+    </select>
+
+</mapper>

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.growtive.admin.mapper.AdminMapper">
+
+    <resultMap id="AdminUserMap" type="com.growtive.admin.dto.AdminUserDto">
+        <id     column="id"            property="id"/>
+        <result column="username"      property="username"/>
+        <result column="display_name"  property="displayName"/>
+        <result column="email"         property="email"/>
+        <result column="role"          property="role"/>
+        <result column="last_login_at" property="lastLoginAt"/>
+        <result column="created_at"    property="createdAt"/>
+    </resultMap>
+
+    <!-- password는 절대 조회하지 않음 -->
+    <select id="findAllUsers" resultMap="AdminUserMap">
+        SELECT id, username, display_name, email, role, last_login_at, created_at
+        FROM users
+        ORDER BY created_at DESC
+    </select>
+
+    <select id="findUserById" resultMap="AdminUserMap">
+        SELECT id, username, display_name, email, role, last_login_at, created_at
+        FROM users
+        WHERE id = #{id}
+    </select>
+
+    <select id="countByEmailExcludingId" resultType="int">
+        SELECT COUNT(*) FROM users WHERE email = #{email} AND id != #{id}
+    </select>
+
+    <update id="updateUserProfile">
+        UPDATE users
+        SET display_name = #{displayName},
+            email = #{email}
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteUser">
+        DELETE FROM users WHERE id = #{id}
+    </delete>
+
+</mapper>

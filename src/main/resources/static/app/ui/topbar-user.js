@@ -1,8 +1,18 @@
 import authStore from '../store/authStore.js';
 
+function renderAdminNav() {
+    const isAdmin = authStore.user?.role === 'ADMIN';
+    const title = document.getElementById('adminMenuTitle');
+    const list = document.getElementById('adminMenuList');
+    if (title) title.style.display = isAdmin ? '' : 'none';
+    if (list) list.style.display = isAdmin ? '' : 'none';
+}
+
 export function renderTopbarUser() {
     const el = document.getElementById('topbar-user');
     if (!el) return;
+
+    renderAdminNav();
 
     // ❌ 로그인 안 된 상태
     if (!authStore.user) {

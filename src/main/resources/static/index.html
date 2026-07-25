@@ -7,8 +7,10 @@
 
 
     <!-- favicon -->
-    <link rel="icon" href="/assets/img/favicon.ico?v=1" type="image/x-icon">
-    <link rel="shortcut icon" href="/assets/img/favicon.ico?v=1" type="image/x-icon">
+    <link rel="icon" href="/assets/img/favicon.ico?v=2" type="image/x-icon">
+    <link rel="shortcut icon" href="/assets/img/favicon.ico?v=2" type="image/x-icon">
+    <link rel="icon" href="/assets/img/icon-192.png?v=2" type="image/png" sizes="192x192">
+    <link rel="apple-touch-icon" href="/assets/img/icon-192.png?v=2">
     <!-- CSS -->
     <link rel="stylesheet" href="/assets/css/base.css">
     <link rel="stylesheet" href="/assets/css/layout.css">
@@ -18,9 +20,6 @@
     <!--money (대시보드 css)-->
     <link rel="stylesheet" href="/assets/css/money.css">
 
-    <!-- 💬 GrowTalk 전용 CSS -->
-    <link rel="stylesheet" href="/assets/css/chat.css">
-
     <!-- axios 전역 로드: main.js보다 위에 있어야 함 -->
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
@@ -29,24 +28,10 @@
 </head>
 <body>
 <header class="topbar">
-    <a href="#" class="brand">GROWTIVE</a>
-
-    <!-- ⭐ 사이드바 토글 버튼 위치 -->
-    <button id="sidebar-toggle" class="sidebar-toggle-btn">📂</button>
-
-    <!-- 기존 상단 메뉴 -->
-    <nav class="topnav">
-        <!-- 대시보드 -->
-        <a href="#/dashboard">대시보드</a>
-        <!-- 회원 -->
-        <a href="#/users">회원목록</a>
-        <a href="#/users/new">회원등록</a>
-        <!-- 주식 -->
-        <a href="#/stocks">주식목록</a>
-        <a href="#/stocks/search">주식등록</a>
-        <!-- DocuMind -->
-        <a href="#/documind">DocuMind</a>
-    </nav>
+    <a href="#/dashboard" class="brand">
+        <img src="/assets/img/icon-192.png?v=2" alt="" class="brand-icon">
+        GROWTIVE
+    </a>
 
     <!-- ✅ 로그인 유저 영역 -->
     <div class="topbar-user" id="topbar-user"></div>
@@ -62,41 +47,25 @@
 <!--좌측 사이드 바 메뉴-->
 <div class="container">
     <aside class="sidebar" id="sidebar">
-        <!--대시보드-->
-        <div class="menu-title">대시보드</div>
+        <!--가계부(홈)-->
+        <div class="menu-title">가계부</div>
         <ul>
-            <li><a href="#/dashboard">🏠 Overview</a></li>
-            <li><a href="#/money/templates">💳 재무 템플릿 관리</a></li>
+            <li><a href="#/dashboard">📅 캘린더</a></li>
         </ul>
-        <!--회원관리-->
-        <div class="menu-title">회원관리</div>
+        <!--재무 대시보드-->
+        <div class="menu-title">재무 대시보드</div>
         <ul>
-            <li><a href="#/login">🔐 로그인</a></li>
-            <li><a href="#/users">👥 목록</a></li>
-            <li><a href="#/users/new">➕ 등록</a></li>
+            <li><a href="#/money/dashboard">📈 돈 흐름</a></li>
         </ul>
-        <!--주식관리-->
-        <div class="menu-title">주식관리</div>
+        <!--친구-->
+        <div class="menu-title">소셜</div>
         <ul>
-            <li><a href="#/stocks">📊 내 종목</a></li>
-            <li><a href="#/stocks/search">🔍 종목 등록</a></li>
+            <li><a href="#/friends">👫 친구</a></li>
         </ul>
-        <!--문서요약-->
-        <div class="menu-title">문서관리</div>
-        <ul>
-            <li><a href="#/documind">📝 문서 요약/Q&A</a></li>
-        </ul>
-
-        <!--메신저-->
-        <div class="menu-title">메신저</div>
-        <ul>
-            <li><a href="#/chat"> 💬GrowTalk</a></li>
-        </ul>
-
-        <!--서비스 제공-->
-        <div class="menu-title">서비스 관리</div>
-        <ul>
-            <li><a href="#/providers"> ✈️서비스 설정</a></li>
+        <!--관리자 전용 (JS로 role=ADMIN일 때만 표시)-->
+        <div class="menu-title" id="adminMenuTitle" style="display:none;">관리자</div>
+        <ul id="adminMenuList" style="display:none;">
+            <li><a href="#/admin/members">👥 회원관리</a></li>
         </ul>
     </aside>
 
@@ -105,8 +74,6 @@
 </div>
 <!-- 🌙 다크모드 토글 스크립트 -->
 <script src="/app/ui/theme-toggle.js"></script>
-<!-- 사이드바 - 모바일 script-->
-<script src="/app/ui/sidebar-toggle.js"></script>
 
 <script type="module" src="/app/ui/topbar-user.js"></script>
 </body>

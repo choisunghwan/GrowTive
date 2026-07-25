@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.growtive.friend.mapper.FriendMapper">
+
+    <resultMap id="UserBasicMap" type="com.growtive.friend.mapper.UserBasic">
+        <id     column="id"           property="id"/>
+        <result column="username"     property="username"/>
+        <result column="display_name" property="displayName"/>
+    </resultMap>
+
+    <select id="findUserBasicByUsername" resultMap="UserBasicMap">
+        SELECT id, username, display_name
+        FROM users
+        WHERE username = #{username}
+    </select>
+
+    <select id="findUserBasicById" resultMap="UserBasicMap">
+        SELECT id, username, display_name
+        FROM users
+        WHERE id = #{id}
+    </select>
+
+    <select id="countExistingBetween" resultType="int">
+        SELECT COUNT(*)
+        FROM friend_connection
+        WHERE (requester_id = #{userA} AND addressee_id = #{userB})
+           OR (requester_id = #{userB} AND addressee_id = #{userA})
+    </select>
+
+    <insert id="insertRequest" useGeneratedKeys="true" keyProperty="row.id">
+        INSERT INTO friend_connection (requester_id, addressee_id, status)
+        VALUES (#{row.requesterId}, #{row.addresseeId}, 'PENDING')
+    </insert>
+
+    <resultMap id="ConnectionRowMap" type="com.growtive.friend.mapper.FriendConnectionRow">
+        <id     column="id"                     property="id"/>
+        <result column="requester_id"           property="requesterId"/>
+        <result column="addressee_id"           property="addresseeId"/>
+        <result column="status"                 property="status"/>
+        <result column="requester_shares_from"   property="requesterSharesFrom"/>
+        <result column="requester_shares_until"  property="requesterSharesUntil"/>
+        <result column="addressee_shares_from"   property="addresseeSharesFrom"/>
+        <result column="addressee_shares_until"  property="addresseeSharesUntil"/>
+    </resultMap>
+
+    <select id="findById" resultMap="ConnectionRowMap">
+        SELECT id, requester_id, addressee_id, status,
+               requester_shares_from, requester_shares_until,
+               addressee_shares_from, addressee_shares_until
+        FROM friend_connection
+        WHERE id = #{id}
+    </select>
+
+    <update id="updateStatus">
+        UPDATE friend_connection SET status = #{status} WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM friend_connection WHERE id = #{id}
+    </delete>
+
+    <resultMap id="ConnectionDtoMap" type="com.growtive.friend.dto.FriendConnectionDto">
+        <id     column="id"                    property="id"/>
+        <result column="other_user_id"         property="otherUserId"/>
+        <result column="other_username"        property="otherUsername"/>
+        <result column="other_display_name"    property="otherDisplayName"/>
+        <result column="status"                property="status"/>
+        <result column="my_shares_from"        property="mySharesFrom"/>
+        <result column="my_shares_until"       property="mySharesUntil"/>
+        <result column="friend_shares_from"    property="friendSharesFrom"/>
+        <result column="friend_shares_until"   property="friendSharesUntil"/>
+        <result column="comparison_available"  property="comparisonAvailable"/>
+        <result column="created_at"            property="createdAt"/>
+    </resultMap>
+
+    <select id="findIncoming" resultMap="ConnectionDtoMap">
+        SELECT fc.id, u.id AS other_user_id, u.username AS other_username,
+               u.display_name AS other_display_name, fc.status,
+               NULL AS my_shares_from, NULL AS my_shares_until,
+               NULL AS friend_shares_from, NULL AS friend_shares_until,
+               FALSE AS comparison_available, fc.created_at
+        FROM friend_connection fc
+        JOIN users u ON u.id = fc.requester_id
+        WHERE fc.addressee_id = #{userId} AND fc.status = 'PENDING'
+        ORDER BY fc.created_at DESC
+    </select>
+
+    <select id="findOutgoing" resultMap="ConnectionDtoMap">
+        SELECT fc.id, u.id AS other_user_id, u.username AS other_username,
+               u.display_name AS other_display_name, fc.status,
+               NULL AS my_shares_from, NULL AS my_shares_until,
+               NULL AS friend_shares_from, NULL AS friend_shares_until,
+               FALSE AS comparison_available, fc.created_at
+        FROM friend_connection fc
+        JOIN users u ON u.id = fc.addressee_id
+        WHERE fc.requester_id = #{userId} AND fc.status = 'PENDING'
+        ORDER BY fc.created_at DESC
+    </select>
+
+    <select id="findAccepted" resultMap="ConnectionDtoMap">
+        SELECT fc.id,
+               CASE WHEN fc.requester_id = #{userId} THEN u2.id ELSE u1.id END AS other_user_id,
+               CASE WHEN fc.requester_id = #{userId} THEN u2.username ELSE u1.username END AS other_username,
+               CASE WHEN fc.requester_id = #{userId} THEN u2.display_name ELSE u1.display_name END AS other_display_name,
+               fc.status,
+               CASE WHEN fc.requester_id = #{userId} THEN fc.requester_shares_from ELSE fc.addressee_shares_from END AS my_shares_from,
+               CASE WHEN fc.requester_id = #{userId} THEN fc.requester_shares_until ELSE fc.addressee_shares_until END AS my_shares_until,
+               CASE WHEN fc.requester_id = #{userId} THEN fc.addressee_shares_from ELSE fc.requester_shares_from END AS friend_shares_from,
+               CASE WHEN fc.requester_id = #{userId} THEN fc.addressee_shares_until ELSE fc.requester_shares_until END AS friend_shares_until,
+               (fc.requester_shares_from IS NOT NULL AND fc.requester_shares_until IS NOT NULL
+                AND fc.addressee_shares_from IS NOT NULL AND fc.addressee_shares_until IS NOT NULL) AS comparison_available,
+               fc.created_at
+        FROM friend_connection fc
+        JOIN users u1 ON u1.id = fc.requester_id
+        JOIN users u2 ON u2.id = fc.addressee_id
+        WHERE (fc.requester_id = #{userId} OR fc.addressee_id = #{userId})
+          AND fc.status = 'ACCEPTED'
+        ORDER BY fc.created_at DESC
+    </select>
+
+    <update id="updateRequesterSharesRange">
+        UPDATE friend_connection
+        SET requester_shares_from = #{sharesFrom}, requester_shares_until = #{sharesUntil}
+        WHERE id = #{id}
+    </update>
+
+    <update id="updateAddresseeSharesRange">
+        UPDATE friend_connection
+        SET addressee_shares_from = #{sharesFrom}, addressee_shares_until = #{sharesUntil}
+        WHERE id = #{id}
+    </update>
+
+</mapper>

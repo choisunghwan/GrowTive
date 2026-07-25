@@ -18,7 +18,10 @@ export default function LoginPage() {
         render() {
             return `
                 <div class="login-container">
-                    <h1 class="login-title">GROWTIVE</h1>
+                    <h1 class="login-title">
+                        <img src="/assets/img/icon-192.png?v=2" alt="" class="login-title-icon">
+                        GROWTIVE
+                    </h1>
 
                     <form id="login-form" class="login-form">
 
@@ -39,6 +42,11 @@ export default function LoginPage() {
                             placeholder="비밀번호를 입력하세요"
                             required
                         />
+
+                        <!-- 아이디 기억하기 -->
+                        <label class="login-remember">
+                            <input type="checkbox" id="rememberId"> 아이디 기억하기
+                        </label>
 
                         <!-- 로그인 버튼 -->
                         <button type="submit" class="login-btn">
@@ -67,9 +75,19 @@ export default function LoginPage() {
          */
         onMounted() {
 
+            const REMEMBER_KEY = 'growtive-remembered-id';
+
             const form = document.getElementById('login-form');
             const userIdInput = document.getElementById('userId');
             const passwordInput = document.getElementById('password');
+            const rememberInput = document.getElementById('rememberId');
+
+            const rememberedId = localStorage.getItem(REMEMBER_KEY);
+            if (rememberedId) {
+                userIdInput.value = rememberedId;
+                rememberInput.checked = true;
+                passwordInput.focus();
+            }
 
             form.addEventListener('submit', async (e) => {
 
@@ -95,6 +113,12 @@ export default function LoginPage() {
                         username: userId,
                         password: password
                     });
+
+                    if (rememberInput.checked) {
+                        localStorage.setItem(REMEMBER_KEY, userId);
+                    } else {
+                        localStorage.removeItem(REMEMBER_KEY);
+                    }
 
                     /**
                      * 2️⃣ 서버 세션 → 프론트 전역 상태 동기화

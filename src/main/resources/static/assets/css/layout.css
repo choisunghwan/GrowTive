@@ -1,37 +1,68 @@
 .topbar {
-    height: 56px;
-    background: #fff;
-    border-bottom: 1px solid #e5e5e5;
+    height: 60px;
+    background: var(--bg-elevated);
+    border-bottom: 1px solid var(--border);
     display: flex;
     align-items: center;
-    padding: 0 16px;
+    padding: 0 20px;
     gap: 16px;
     position: sticky;
     top: 0;
     z-index: 10;
+    box-shadow: var(--shadow-sm);
 }
 
 .topbar .brand {
-    font-weight: 700;
-}
-
-.topnav {
+    font-weight: 800;
+    font-size: 17px;
+    letter-spacing: -.02em;
     display: flex;
     align-items: center;
     gap: 8px;
-    flex: 1;
 }
 
-.topnav a {
-    margin-right: 12px;
-    color: #444;
-    padding: 6px 8px;
-    border-radius: 6px;
+.topbar .brand-icon {
+    width: 22px;
+    height: 22px;
+    border-radius: 7px;
+    flex-shrink: 0;
+    display: block;
 }
 
-.topnav a.active {
-    background: #0078ff;
-    color: #fff;
+.topbar-user {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.topbar-user a {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--brand);
+}
+
+.topbar-username {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+}
+
+.topbar-logout {
+    height: 32px;
+    padding: 0 12px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background: var(--bg-elevated);
+    color: var(--text-muted);
+    font-size: 13px;
+    cursor: pointer;
+    transition: background .15s ease, color .15s ease;
+}
+
+.topbar-logout:hover {
+    background: var(--bg);
+    color: var(--text);
 }
 
 /* 🌙 테마 토글 버튼 (우측 상단) */
@@ -39,51 +70,82 @@
     border: none;
     background: transparent;
     cursor: pointer;
-    font-size: 18px;
+    font-size: 17px;
     line-height: 1;
-    padding: 4px 8px;
+    padding: 6px 10px;
     border-radius: 999px;
-    color: #444;
+    color: var(--text-muted);
+    transition: background .15s ease;
 }
 
 .theme-toggle:hover {
-    background: #f1f5f9;
+    background: var(--bg);
 }
 
 /* 레이아웃 */
 .container {
     display: flex;
-    min-height: calc(100vh - 56px);
+    min-height: calc(100vh - 60px);
+    background: var(--bg);
 }
 
 .sidebar {
-    width: 220px;
-    padding: 16px;
-    border-right: 1px solid #eee;
-    background: #fff;
+    width: 224px;
+    padding: 18px 14px;
+    border-right: 1px solid var(--border);
+    background: var(--bg-elevated);
+    flex-shrink: 0;
+    transition: width .25s ease, padding .25s ease, border .25s ease;
 }
 
 .sidebar .menu-title {
-    margin: 12px 0 6px;
-    font-weight: 600;
-    color: #666;
+    margin: 18px 4px 6px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+}
+
+.sidebar .menu-title:first-child {
+    margin-top: 4px;
+}
+
+.sidebar ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
 }
 
 .sidebar a {
-    display: block;
-    padding: 6px 8px;
-    border-radius: 6px;
-    color: #333;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 10px;
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    font-size: 14px;
+    font-weight: 500;
+    transition: background .15s ease, color .15s ease;
+}
+
+.sidebar a:hover {
+    background: var(--bg);
 }
 
 .sidebar a.active {
-    background: #eef4ff;
-    color: #0a58ca;
+    background: #eaf1ff;
+    color: var(--brand);
+    font-weight: 700;
 }
 
 .content {
     flex: 1;
     padding: 24px;
+    transition: padding .25s ease;
 }
 
 /* -----------------------------
@@ -97,7 +159,7 @@
     background: #eef6ff;
     border: 1px solid #bcd8ff;
     padding: 10px 16px;
-    border-radius: 8px;
+    border-radius: var(--radius-sm);
     margin-bottom: 16px;
     gap: 12px;
 }
@@ -123,11 +185,11 @@
 /* 오른쪽 버튼 */
 .notice-btn {
     flex-shrink: 0;
-    background: #1677ff;
+    background: var(--brand);
     color: white;
     border: none;
     padding: 6px 12px;
-    border-radius: 6px;
+    border-radius: var(--radius-sm);
     cursor: pointer;
     font-size: 13px;
     white-space: nowrap;
@@ -152,63 +214,14 @@
    🌙 Layout Dark Mode (Topbar, Sidebar, Content, Banner, Toggle)
    ============================= */
 
-html.dark .topbar {
-    background: #020617;
-    border-bottom-color: #1f2937;
-}
-
-html.dark .topbar .brand {
-    color: #e5e7eb;
-}
-
-html.dark .topnav a {
-    color: #e5e7eb;
-}
-
-html.dark .topnav a.active {
-    background: #2563eb;
-    color: #f9fafb;
-}
-
-/* 토글 버튼 다크 모드 */
-html.dark .theme-toggle {
-    color: #e5e7eb;
-}
-
-html.dark .theme-toggle:hover {
-    background: #111827;
-}
-
-html.dark .container {
-    background: #111827;
-}
-
-html.dark .sidebar {
-    background: #020617;
-    border-right-color: #1f2937;
-}
-
-html.dark .sidebar .menu-title {
-    color: #9ca3af;
-}
-
-html.dark .sidebar a {
-    color: #e5e7eb;
-}
-
 html.dark .sidebar a.active {
     background: #1d283a;
     color: #93c5fd;
 }
 
-html.dark .content {
-    color: #e5e7eb;
-}
-
-/* 🔔 공지 배너 다크 버전 */
 html.dark .notice-banner {
-    background: #1e1f23;
-    border-color: #333;
+    background: #16233a;
+    border-color: #23324a;
 }
 
 html.dark .notice-text-wrap .marquee {
@@ -216,7 +229,7 @@ html.dark .notice-text-wrap .marquee {
 }
 
 html.dark .notice-btn {
-    background: #4c8df6;
+    background: var(--brand);
     color: #fff;
 }
 
@@ -226,35 +239,21 @@ html.dark .notice-btn:hover {
 
 
 /* =========================
-   📌 GrowTive Sidebar Toggle
+   🔐 인증 화면(로그인/회원가입)에서는
+   앱 크롬(topbar/sidebar)을 숨기고 폼만 전체 화면에 띄운다
 ========================= */
+body.auth-view .topbar,
+body.auth-view .sidebar {
+    display: none;
+}
 
-/* 닫혔을 때: 완전 숨김처럼 */
-.sidebar.collapsed {
-    width: 0;
+body.auth-view .container {
+    min-height: 100vh;
+}
+
+body.auth-view .content {
     padding: 0;
-    border: none;
-    overflow: hidden;
 }
-
-/* 기본: 열려 있을 때 */
-.sidebar {
-    width: 220px;
-    padding: 16px;
-    border-right: 1px solid #eee;
-    background: #fff;
-    flex-shrink: 0;
-    transition: width 0.25s ease, padding 0.25s ease, border 0.25s ease;
-}
-/* 내용 영역도 같이 이동 */
-.content {
-    flex: 1;
-    padding: 24px;
-    transition: padding 0.25s ease;
-}
-
-
-
 
 /* =========================
    📱 Mobile Responsive (GrowTive)
@@ -269,9 +268,8 @@ html.dark .notice-btn:hover {
         gap: 8px;
     }
 
-    /* 모바일에서는 상단 메뉴 숨김 */
-    .topnav {
-        display: none;
+    .topbar-username {
+        display: none; /* 모바일에서는 이름 숨기고 로그아웃 버튼만 */
     }
 
     /* =====================
@@ -284,34 +282,13 @@ html.dark .notice-btn:hover {
 
     /* =====================
        Sidebar (모바일 전용)
+       - 토글 버튼 없이 콘텐츠 위에 항상 노출
        ===================== */
-
-    /* ⚠️ PC용 collapsed 무력화 */
-    .sidebar.collapsed {
-        width: 220px;
-        padding: 16px;
-        border-right: 1px solid #eee;
-    }
-
-    /* 모바일 기본 상태: 숨김 */
     .sidebar {
-        position: fixed;
-        top: 56px; /* topbar 높이 */
-        left: 0;
-        height: calc(100vh - 56px);
-        width: 220px;
-        padding: 16px;
-        background: #fff;
-        z-index: 1000;
-
-        /* 슬라이드 방식 */
-        transform: translateX(-100%);
-        transition: transform 0.25s ease;
-    }
-
-    /* 📱 모바일에서 열렸을 때 */
-    .sidebar.open {
-        transform: translateX(0);
+        width: 100%;
+        padding: 12px 14px;
+        border-right: none;
+        border-bottom: 1px solid var(--border);
     }
 
     /* =====================

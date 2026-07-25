@@ -20,6 +20,13 @@ public class User {
     private String provider;
     private String providerId;
 
+    /**
+     * USER / ADMIN
+     */
+    private String role;
+
+    private LocalDateTime lastLoginAt;
+
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 

@@ -11,7 +11,10 @@ export default function RegisterPage() {
             return `
                 <div class="login-container">
 
-                    <h1 class="login-title">회원가입</h1>
+                    <h1 class="login-title">
+                        <img src="/assets/img/icon-192.png?v=2" alt="" class="login-title-icon">
+                        회원가입
+                    </h1>
 
                     <form id="register-form" class="login-form">
 

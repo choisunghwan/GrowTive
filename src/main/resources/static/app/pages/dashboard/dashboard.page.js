@@ -2,14 +2,11 @@ export default function DashboardPage() {
     const now = new Date();
 
     return {
-        title: "대시보드",
+        title: "돈 흐름",
 
         state: {
             year: now.getFullYear(),
-            month: now.getMonth() + 1,
-            months: 72,
-            target: 100000000,
-            monthlyIncrease: 200000
+            month: now.getMonth() + 1
         },
 
         render() {
@@ -18,14 +15,13 @@ export default function DashboardPage() {
 
           <div class="card">
             <h1 class="title">GrowTive</h1>
-            <p class="subtitle">재무 실험실</p>
+            <p class="subtitle">이번 달 돈이 어디로 흘러가는지 확인하세요</p>
 
             <div style="display:flex; align-items:center; gap:10px; margin-top:16px; flex-wrap:wrap;">
               <button id="prevMonthBtn" type="button">◀ 이전 달</button>
               <div id="currentMonthLabel" style="font-weight:700; font-size:16px;"></div>
               <button id="nextMonthBtn" type="button">다음 달 ▶</button>
               <button id="goCurrentMonthBtn" type="button">현재 월로</button>
-              <button id="closeMonthBtn" type="button">월 마감</button>
             </div>
           </div>
 
@@ -33,68 +29,23 @@ export default function DashboardPage() {
           <div class="card" style="margin-top:20px;">
             <h3>월급 흐름</h3>
             <div style="font-size:13px; opacity:0.75; margin-top:6px;">
-              선택한 월 기준 Sankey 흐름입니다.
+              가계부에 기록한 수입/지출을 기반으로 이번 달 돈의 흐름을 보여줍니다.
             </div>
-            <div class="chart-wrapper" style="margin-top:12px;">
-              <canvas id="sankeyChart"></canvas>
+            <div class="chart-wrapper sankey-scroll" style="margin-top:12px;">
+              <div class="sankey-scroll-inner">
+                <canvas id="sankeyChart"></canvas>
+              </div>
             </div>
             <div id="remainingInfo" style="margin-top:10px;"></div>
-          </div>
-
-          <!-- 📝 월별 재무 입력 -->
-          <div class="card" style="margin-top:20px;">
-            <h3>월별 재무 입력</h3>
-            <div style="font-size:13px; opacity:0.75; margin-top:6px;">
-              선택한 월의 월급/지출/투자 등 월별 금액을 입력하고 저장하세요.
-            </div>
-
-            <div id="snapshotInputs" style="margin-top:15px;"></div>
-
-            <div style="display:flex; gap:10px; margin-top:12px; flex-wrap:wrap;">
-              <button id="saveSnapshotBtn">저장</button>
-              <button id="reloadSnapshotBtn" type="button">다시 불러오기</button>
-              <div id="snapshotStatus" style="align-self:center; font-size:13px; opacity:0.8;"></div>
-            </div>
-          </div>
-
-          <!-- 🎛 재무 설정 -->
-          <div class="card" style="margin-top:20px;">
-            <h3>재무 설정</h3>
-
-            <div style="margin-top:15px;">
-              <label>목표 금액: <b id="targetLabel"></b></label>
-              <input type="range" id="targetSlider" min="50000000" max="300000000" step="10000000">
-            </div>
-
-            <div style="margin-top:15px;">
-              <label>추가 투자: <b id="increaseLabel"></b></label>
-              <input type="range" id="increaseSlider" min="0" max="1000000" step="50000">
-            </div>
-
-            <div style="margin-top:15px;">
-              <label>기간 (개월): <b id="monthsLabel"></b></label>
-              <input type="range" id="monthsSlider" min="24" max="180" step="6">
-            </div>
           </div>
 
           <!-- 💰 요약 -->
           <div class="card" style="margin-top:20px;">
             <h3>재무 요약</h3>
             <div style="font-size:13px; opacity:0.75; margin-top:6px;">
-              선택한 월을 시작점으로 계산됩니다.
+              이번 달 수입/지출 요약입니다.
             </div>
-            <div id="moneySummary" style="display:flex; gap:12px; flex-wrap:wrap; margin-top:12px;"></div>
-          </div>
-
-          <!-- 📈 자산 성장 -->
-          <div class="card" style="margin-top:20px;">
-            <h3>자산 성장 예측</h3>
-            <div style="font-size:13px; opacity:0.75; margin-top:6px;">
-              선택한 월 기준으로 목표 도달 시점을 계산합니다.
-            </div>
-            <div class="chart-wrapper" style="margin-top:12px;">
-              <canvas id="moneyChart"></canvas>
-            </div>
+            <div id="moneySummary" class="money-summary-grid"></div>
           </div>
 
         </section>
@@ -116,10 +67,7 @@ export default function DashboardPage() {
                 await new Promise(resolve => sankeyScript.onload = resolve);
             }
 
-            this.initSliders();
             this.bindMonthButtons();
-            this.bindSnapshotButtons();
-            this.bindCloseMonthButton();
             this.renderMonthLabel();
 
             await this.refreshAll();
@@ -157,85 +105,8 @@ export default function DashboardPage() {
         },
 
         async refreshAll() {
-            await this.loadSnapshotInputs();
-            await this.updateDashboard();
+            await this.loadSummary();
             await this.renderSankey();
-            await this.updateCloseMonthButton();
-        },
-
-        async updateCloseMonthButton() {
-            const btn = document.getElementById("closeMonthBtn");
-            if (!btn) return;
-
-            const { year, month } = this.state;
-
-            try {
-                const res = await fetch(`/api/money/month-status?year=${year}&month=${month}`);
-                if (!res.ok) {
-                    throw new Error(`월 상태 조회 실패: ${res.status}`);
-                }
-
-                const closed = await res.json();
-
-                if (closed) {
-                    btn.disabled = true;
-                    btn.innerText = "월 마감 완료";
-                    btn.style.opacity = "0.7";
-                    btn.style.cursor = "not-allowed";
-                } else {
-                    btn.disabled = false;
-                    btn.innerText = "월 마감";
-                    btn.style.opacity = "1";
-                    btn.style.cursor = "pointer";
-                }
-            } catch (e) {
-                console.error(e);
-                btn.disabled = false;
-                btn.innerText = "월 마감";
-                btn.style.opacity = "1";
-                btn.style.cursor = "pointer";
-            }
-        },
-
-        bindCloseMonthButton() {
-            const btn = document.getElementById("closeMonthBtn");
-            if (!btn) return;
-
-            btn.onclick = async () => {
-                if (btn.disabled) return;
-
-                const { year, month } = this.state;
-
-                if (!confirm(`${year}년 ${month}월을 월 마감하시겠습니까?`)) {
-                    return;
-                }
-
-                try {
-                    btn.disabled = true;
-                    btn.innerText = "월 마감 처리 중...";
-
-                    const res = await fetch(
-                        `/api/money/close-month?year=${year}&month=${month}`,
-                        { method: "POST" }
-                    );
-
-                    if (!res.ok) {
-                        throw new Error(`월 마감 실패: ${res.status}`);
-                    }
-
-                    alert("월 마감 완료");
-
-                    // 다음 달로 이동
-                    this.moveMonth(1);
-
-                    await this.refreshAll();
-
-                } catch (e) {
-                    console.error(e);
-                    alert(e.message);
-                    await this.updateCloseMonthButton();
-                }
-            };
         },
 
         bindMonthButtons() {
@@ -268,141 +139,69 @@ export default function DashboardPage() {
             }
         },
 
-        /* ---------------- Snapshot 입력 UI ---------------- */
-
-        async loadSnapshotInputs() {
-            const { year, month } = this.state;
-
-            const statusEl = document.getElementById("snapshotStatus");
-            const container = document.getElementById("snapshotInputs");
-
-            if (!container) return;
-
-            try {
-                if (statusEl) statusEl.innerText = `${this.getYearMonthText()} 불러오는 중...`;
-
-                const res = await fetch(`/api/money/snapshot?year=${year}&month=${month}`);
-                if (!res.ok) {
-                    throw new Error(`snapshot 조회 실패: ${res.status}`);
-                }
-
-                const nodes = await res.json();
-
-                container.innerHTML = "";
-
-                if (!Array.isArray(nodes) || nodes.length === 0) {
-                    container.innerHTML = `
-                      <div style="font-size:13px; opacity:0.8;">
-                        입력 가능한 항목이 없습니다. (template/snapshot 생성 상태를 확인하세요)
-                      </div>
-                    `;
-                    if (statusEl) statusEl.innerText = "";
-                    return;
-                }
-
-                nodes.forEach(node => {
-                    const amount = (node.monthlyAmount ?? 0);
-                    const isClosed = !!node.closed;
-
-                    container.innerHTML += `
-                        <div style="margin-bottom:12px;">
-                            <label style="display:block; font-size:14px; margin-bottom:6px;">
-                                ${node.name} <span style="font-size:12px; opacity:0.7;">(${node.type})</span>
-                            </label>
-                            <input type="number"
-                                   data-id="${node.id}"
-                                   value="${amount}"
-                                   ${isClosed ? "disabled" : ""}
-                                   style="width:100%; padding:8px; box-sizing:border-box;"
-                                   placeholder="0" />
-                        </div>
-                    `;
-                });
-
-                if (statusEl) statusEl.innerText = `${this.getYearMonthText()} 입력 항목 로드 완료`;
-            } catch (e) {
-                console.error(e);
-                container.innerHTML = `
-                  <div style="font-size:13px; color:#c0392b;">
-                    스냅샷 입력 항목 로드 실패: ${e.message}
-                  </div>
-                `;
-                if (statusEl) statusEl.innerText = "";
-            }
-        },
-
-        bindSnapshotButtons() {
-            const saveBtn = document.getElementById("saveSnapshotBtn");
-            const reloadBtn = document.getElementById("reloadSnapshotBtn");
-
-            if (saveBtn) {
-                saveBtn.onclick = async () => {
-                    await this.saveSnapshotInputs();
-                };
-            }
-
-            if (reloadBtn) {
-                reloadBtn.onclick = async () => {
-                    await this.loadSnapshotInputs();
-                    await this.updateCloseMonthButton();
-                };
-            }
-        },
-
-        async saveSnapshotInputs() {
-            const { year, month } = this.state;
-
-            const statusEl = document.getElementById("snapshotStatus");
-            const closeBtn = document.getElementById("closeMonthBtn");
-            const inputs = document.querySelectorAll("#snapshotInputs input[data-id]");
-
-            if (closeBtn && closeBtn.disabled && closeBtn.innerText.includes("완료")) {
-                alert("이미 월 마감된 데이터는 수정할 수 없습니다.");
-                return;
-            }
-
-            if (!inputs || inputs.length === 0) {
-                alert("저장할 입력 항목이 없습니다.");
-                return;
-            }
-
-            const nodes = Array.from(inputs).map(input => ({
-                snapshotId: Number(input.dataset.id),
-                amount: Number(input.value || 0)
-            }));
-
-            try {
-                if (statusEl) statusEl.innerText = `${this.getYearMonthText()} 저장 중...`;
-
-                const res = await fetch("/api/money/snapshot/update", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        year,
-                        month,
-                        nodes
-                    })
-                });
-
-                if (!res.ok) {
-                    throw new Error(`저장 실패: ${res.status}`);
-                }
-
-                if (statusEl) statusEl.innerText = `${this.getYearMonthText()} 저장 완료! 갱신 중...`;
-
-                await this.updateDashboard();
-                await this.renderSankey();
-                await this.updateCloseMonthButton();
-
-                if (statusEl) statusEl.innerText = `${this.getYearMonthText()} 저장 완료 + 갱신 완료`;
-            } catch (e) {
-                console.error(e);
-                alert(`저장 실패: ${e.message}`);
-                if (statusEl) statusEl.innerText = "";
-            }
-        },
-
         /* ---------------- Sankey ---------------- */
+
+        // 카테고리가 너무 많으면 라벨이 겹치므로, 각 쪽(수입/지출) 상위 5개만 남기고
+        // 나머지는 "기타 수입"/"기타 지출"로 합쳐서 보여준다 (실제 합계 데이터는 그대로 유지).
+        buildDisplayFlow(data) {
+            const nodes = data.nodes || [];
+            const links = data.links || [];
+            const hub = nodes.find(n => n.name === "총수입");
+            const remain = nodes.find(n => n.type === "REMAIN");
+
+            if (!hub) {
+                return { sankeyData: [], hubName: null, remainName: null, incomeNames: new Set(), expenseNames: new Set() };
+            }
+
+            const byId = new Map(nodes.map(n => [n.id, n]));
+            const MAX_PER_SIDE = 3;
+
+            const condense = (sideLinks, pickNodeId) => {
+                const sorted = [...sideLinks].sort((a, b) => b.value - a.value);
+                const kept = sorted.slice(0, MAX_PER_SIDE).map(l => ({
+                    name: byId.get(pickNodeId(l))?.name || "기타",
+                    value: l.value
+                }));
+                const restTotal = sorted.slice(MAX_PER_SIDE).reduce((sum, l) => sum + l.value, 0);
+                return { kept, restTotal };
+            };
+
+            const incomeLinks = links.filter(l => l.target === hub.id);
+            const expenseLinks = links.filter(l => l.source === hub.id && (!remain || l.target !== remain.id));
+            const remainLink = remain ? links.find(l => l.target === remain.id) : null;
+
+            const income = condense(incomeLinks, l => l.source);
+            const expense = condense(expenseLinks, l => l.target);
+
+            const incomeNames = new Set(income.kept.map(i => i.name));
+            const expenseNames = new Set(expense.kept.map(i => i.name));
+
+            const sankeyData = [];
+            income.kept.forEach(i => sankeyData.push({ from: i.name, to: hub.name, flow: i.value }));
+            if (income.restTotal > 0) {
+                sankeyData.push({ from: "기타 수입", to: hub.name, flow: income.restTotal });
+                incomeNames.add("기타 수입");
+            }
+            expense.kept.forEach(i => sankeyData.push({ from: hub.name, to: i.name, flow: i.value }));
+            if (expense.restTotal > 0) {
+                sankeyData.push({ from: hub.name, to: "기타 지출", flow: expense.restTotal });
+                expenseNames.add("기타 지출");
+            }
+            if (remainLink && remain) {
+                sankeyData.push({ from: hub.name, to: remain.name, flow: remainLink.value });
+            }
+
+            return { sankeyData, hubName: hub.name, remainName: remain ? remain.name : null, incomeNames, expenseNames };
+        },
+
+        colorForNode(name, ctx) {
+            const isDark = document.documentElement.classList.contains("dark");
+            if (name === ctx.hubName) return isDark ? "#3b82f6" : "#2563eb";
+            if (name === ctx.remainName) return isDark ? "#2dd4bf" : "#0d9488";
+            if (ctx.incomeNames.has(name)) return isDark ? "#22c55e" : "#16a34a";
+            if (ctx.expenseNames.has(name)) return isDark ? "#fca5a5" : "#dc2626";
+            return isDark ? "#94a3b8" : "#64748b";
+        },
 
         async renderSankey() {
             const res = await fetch(`/api/money/flow?year=${this.state.year}&month=${this.state.month}`);
@@ -411,35 +210,32 @@ export default function DashboardPage() {
             }
 
             const data = await res.json();
-            const ctx = document.getElementById("sankeyChart");
+            const canvas = document.getElementById("sankeyChart");
 
-            if (!ctx) return;
+            if (!canvas) return;
 
             if (window.__sankeyChart) {
                 window.__sankeyChart.destroy();
             }
 
-            const sankeyData = (data.links || [])
-                .map(l => {
-                    const fromNode = (data.nodes || []).find(n => n.id === l.source);
-                    const toNode = (data.nodes || []).find(n => n.id === l.target);
+            const flow = this.buildDisplayFlow(data);
+            const isDark = document.documentElement.classList.contains("dark");
+            const labelColor = isDark ? "#e5e9f2" : "#1e2530";
+            const fontStack = "'Pretendard Variable', Pretendard, -apple-system, 'Segoe UI', Roboto, 'Noto Sans KR', 'Malgun Gothic', sans-serif";
 
-                    if (!fromNode || !toNode) return null;
-
-                    return {
-                        from: fromNode.name,
-                        to: toNode.name,
-                        flow: l.value
-                    };
-                })
-                .filter(Boolean);
-
-            window.__sankeyChart = new Chart(ctx, {
+            window.__sankeyChart = new Chart(canvas, {
                 type: "sankey",
                 data: {
                     datasets: [{
-                        label: `${this.getYearMonthText()} 월급 흐름`,
-                        data: sankeyData
+                        label: `${this.getYearMonthText()} 돈 흐름`,
+                        data: flow.sankeyData,
+                        colorFrom: c => this.colorForNode(c.raw.from, flow),
+                        colorTo: c => this.colorForNode(c.raw.to, flow),
+                        colorMode: "gradient",
+                        borderWidth: 0,
+                        nodeWidth: 14,
+                        color: labelColor,
+                        font: { family: fontStack, size: 12, weight: "600" }
                     }]
                 },
                 options: {
@@ -463,177 +259,43 @@ export default function DashboardPage() {
             if (remainEl) {
                 if (remainingNode) {
                     remainEl.innerHTML =
-                        `<div style="color:#2ecc71;font-weight:600;">
-                          ● ${this.getYearMonthText()} 가용금: ${Number(remainingNode.monthlyAmount || 0).toLocaleString("ko-KR")}원
-                        </div>`;
+                        `<div class="sankey-caption"><span class="dot"></span>${this.getYearMonthText()} 가용금 ${Number(remainingNode.monthlyAmount || 0).toLocaleString("ko-KR")}원</div>`;
                 } else {
-                    remainEl.innerHTML = `
-                        <div style="opacity:0.75;">
-                          ${this.getYearMonthText()} 가용금 데이터가 없습니다.
-                        </div>
-                    `;
+                    remainEl.innerHTML = `<div class="sankey-caption is-empty">${this.getYearMonthText()} 가용금 데이터가 없습니다.</div>`;
                 }
             }
-        },
-
-        /* ---------------- 슬라이더 ---------------- */
-
-        initSliders() {
-            const targetSlider = document.getElementById("targetSlider");
-            const increaseSlider = document.getElementById("increaseSlider");
-            const monthsSlider = document.getElementById("monthsSlider");
-
-            targetSlider.value = this.state.target;
-            increaseSlider.value = this.state.monthlyIncrease;
-            monthsSlider.value = this.state.months;
-
-            const updateLabels = () => {
-                document.getElementById("targetLabel").innerText =
-                    Number(targetSlider.value).toLocaleString("ko-KR") + "원";
-                document.getElementById("increaseLabel").innerText =
-                    Number(increaseSlider.value).toLocaleString("ko-KR") + "원";
-                document.getElementById("monthsLabel").innerText =
-                    monthsSlider.value + "개월";
-            };
-
-            updateLabels();
-
-            targetSlider.oninput = async () => {
-                this.state.target = Number(targetSlider.value);
-                updateLabels();
-                await this.updateDashboard();
-            };
-
-            increaseSlider.oninput = async () => {
-                this.state.monthlyIncrease = Number(increaseSlider.value);
-                updateLabels();
-                await this.updateDashboard();
-            };
-
-            monthsSlider.oninput = async () => {
-                this.state.months = Number(monthsSlider.value);
-                updateLabels();
-                await this.updateDashboard();
-            };
-        },
-
-        /* ---------------- 데이터 갱신 ---------------- */
-
-        async updateDashboard() {
-            const { year, month, months, target, monthlyIncrease } = this.state;
-
-            const chartRes = await fetch(`/api/money/chart?year=${year}&month=${month}&months=${months}&target=${target}`);
-            if (!chartRes.ok) {
-                throw new Error(`chart 조회 실패: ${chartRes.status}`);
-            }
-            const chartData = await chartRes.json();
-
-            const goalRes = await fetch(`/api/money/goal?year=${year}&month=${month}&target=${target}`);
-            if (!goalRes.ok) {
-                throw new Error(`goal 조회 실패: ${goalRes.status}`);
-            }
-            const goalData = await goalRes.json();
-
-            const compareRes = await fetch(`/api/money/compare-goal?year=${year}&month=${month}&target=${target}&monthlyIncrease=${monthlyIncrease}`);
-            if (!compareRes.ok) {
-                throw new Error(`compare-goal 조회 실패: ${compareRes.status}`);
-            }
-            const compareData = await compareRes.json();
-
-            this.renderSummary(target, goalData, compareData);
-            this.renderChart(chartData);
         },
 
         /* ---------------- 요약 ---------------- */
 
-        renderSummary(target, base, improved) {
+        async loadSummary() {
+            const { year, month } = this.state;
+
+            const res = await fetch(`/api/money/summary?year=${year}&month=${month}`);
+            if (!res.ok) {
+                throw new Error(`summary 조회 실패: ${res.status}`);
+            }
+            const summary = await res.json();
+
             const el = document.getElementById("moneySummary");
             if (!el) return;
 
+            const won = n => Number(n || 0).toLocaleString("ko-KR") + "원";
+
             el.innerHTML = `
-              <div style="flex:1; min-width:220px;">
-                <div>기준 월</div>
-                <b>${this.getYearMonthText()}</b>
+              <div class="money-stat money-stat--income">
+                <div class="money-stat-label">총 수입</div>
+                <div class="money-stat-value">${won(summary.totalIncome)}</div>
               </div>
-              <div style="flex:1; min-width:220px;">
-                <div>목표</div>
-                <b>${Number(target).toLocaleString("ko-KR")}원</b>
+              <div class="money-stat money-stat--expense">
+                <div class="money-stat-label">총 지출</div>
+                <div class="money-stat-value">${won(summary.totalExpense)}</div>
               </div>
-              <div style="flex:1; min-width:220px;">
-                <div>기본 도달</div>
-                <b>${base.achievedYear}-${String(base.achievedMonth).padStart(2,"0")}</b>
-              </div>
-              <div style="flex:1; min-width:220px;">
-                <div>추가 투자 도달</div>
-                <b>${improved.improvedYear}-${String(improved.improvedMonth).padStart(2,"0")}</b>
+              <div class="money-stat money-stat--remain">
+                <div class="money-stat-label">잔액</div>
+                <div class="money-stat-value">${won(summary.remaining)}</div>
               </div>
             `;
-        },
-
-        /* ---------------- 라인 차트 ---------------- */
-
-        renderChart(data) {
-            const ctx = document.getElementById("moneyChart");
-            if (!ctx) return;
-
-            if (window.__moneyChart) {
-                window.__moneyChart.destroy();
-            }
-
-            window.__moneyChart = new Chart(ctx, {
-                type: "line",
-                data: {
-                    labels: data.labels,
-                    datasets: [
-                        {
-                            label: "기본 투자",
-                            data: data.assetSeries,
-                            tension: 0.25,
-                            pointRadius: 3,
-                            fill: false
-                        },
-                        {
-                            label: `+${Number(this.state.monthlyIncrease).toLocaleString("ko-KR")}원 투자`,
-                            data: data.extraSeries,
-                            tension: 0.25,
-                            pointRadius: 3,
-                            fill: false
-                        },
-                        {
-                            label: "목표선",
-                            data: data.targetLine,
-                            borderDash: [6, 6],
-                            pointRadius: 0
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    interaction: {
-                        mode: "index",
-                        intersect: false
-                    },
-                    plugins: {
-                        tooltip: {
-                            enabled: true,
-                            mode: "index",
-                            intersect: false,
-                            callbacks: {
-                                label: ctx =>
-                                    `${ctx.dataset.label}: ${Number(ctx.parsed.y || 0).toLocaleString("ko-KR")}원`
-                            }
-                        }
-                    },
-                    scales: {
-                        y: {
-                            ticks: {
-                                callback: value => Number(value).toLocaleString("ko-KR")
-                            }
-                        }
-                    }
-                }
-            });
         }
     };
 }

@@ -59,20 +59,18 @@ dependencies {
 	// runtimeOnly   'io.jsonwebtoken:jjwt-impl:0.12.6'
 	// runtimeOnly   'io.jsonwebtoken:jjwt-jackson:0.12.6'
 
-	// ✅ WebSocket (필수)
-	implementation 'org.springframework.boot:spring-boot-starter-websocket'
-
 	// --- Test
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 //	testImplementation 'org.springframework.security:spring-security-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-	//Apache Tika 사용: tika-core + tika-parsers-standard-package 라이브러리
-	implementation 'org.apache.tika:tika-core:2.9.2'
-	implementation 'org.apache.tika:tika-parsers-standard-package:2.9.2'
-
 
 }
 
 tasks.named('test') {
 	useJUnitPlatform()
+}
+
+// 배포용 Dockerfile이 실행 가능한 fat jar 하나만 골라내도록, plain jar는 만들지 않음
+tasks.named('jar') {
+	enabled = false
 }

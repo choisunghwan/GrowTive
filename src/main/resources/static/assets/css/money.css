@@ -4,14 +4,13 @@
 }
 
 /* Sankey 반응형 */
+.sankey-scroll {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
 #sankeyChart {
     width: 100% !important;
-    height: 280px !important;
-}
-
-/* Chart 반응형 */
-#moneyChart {
-    width: 100%;
+    height: 600px !important;
 }
 
 .card canvas {
@@ -32,16 +31,505 @@
         padding: 14px;
     }
 
-    #sankeyChart,
-    #moneyChart {
-        height: 220px !important;
+    .sankey-scroll-inner {
+        width: 640px;
+    }
+
+    #sankeyChart {
+        height: 380px !important;
     }
 
     #moneySummary {
         flex-direction: column;
     }
-
-    #moneySummary > div {
-        margin-bottom: 10px;
-    }
 }
+
+/* 돈 흐름 카드 헤더 + 가용금 배지 */
+.sankey-caption {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 4px;
+    padding: 8px 14px;
+    border-radius: 999px;
+    background: #ecfdf5;
+    color: #0d9488;
+    font-weight: 700;
+    font-size: 13.5px;
+}
+.sankey-caption .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #0d9488;
+}
+.sankey-caption.is-empty {
+    background: transparent;
+    color: var(--text-muted);
+    font-weight: 500;
+    padding-left: 0;
+}
+
+/* 재무 요약: 통계 타일 */
+.money-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 14px;
+    margin-top: 14px;
+}
+.money-stat {
+    padding: 16px 18px;
+    border-radius: var(--radius-md);
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--stat-accent, var(--border));
+}
+.money-stat-label {
+    font-size: 12.5px;
+    color: var(--text-muted);
+    font-weight: 600;
+    letter-spacing: .01em;
+}
+.money-stat-value {
+    margin-top: 6px;
+    font-size: 21px;
+    font-weight: 800;
+    letter-spacing: -.01em;
+    color: var(--stat-accent, var(--text));
+}
+.money-stat--income { --stat-accent: #16a34a; }
+.money-stat--expense { --stat-accent: #dc2626; }
+.money-stat--remain { --stat-accent: #0d9488; }
+
+html.dark .sankey-caption {
+    background: rgba(45, 212, 191, .12);
+    color: #2dd4bf;
+}
+html.dark .sankey-caption .dot { background: #2dd4bf; }
+html.dark .money-stat--income { --stat-accent: #6ee7b7; }
+html.dark .money-stat--expense { --stat-accent: #fca5a5; }
+html.dark .money-stat--remain { --stat-accent: #2dd4bf; }
+
+/* =======================================
+   📅 가계부(캘린더) 페이지
+   ======================================= */
+.ledger-page {
+    display: grid;
+    gap: 16px;
+    padding: 24px;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.ledger-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin-bottom: 16px;
+}
+
+.ledger-header h2 { margin: 0; min-width: 120px; text-align: center; font-size: 19px; font-weight: 800; }
+
+.ledger-month-nav { display: flex; align-items: center; gap: 12px; }
+
+.ledger-nav-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    background: var(--bg-elevated);
+    color: var(--text);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    cursor: pointer;
+    transition: background .15s ease, border-color .15s ease;
+}
+.ledger-nav-btn:hover { background: var(--bg); border-color: #c7d7ff; }
+
+.ledger-header-controls { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+
+.ledger-switch {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    padding: 3px;
+    border-radius: 999px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+}
+.ledger-switch-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 13px;
+    border: none;
+    border-radius: 999px;
+    background: transparent;
+    color: var(--text-muted);
+    font-size: 12.5px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    transition: background .15s ease, color .15s ease;
+}
+.ledger-switch-btn:hover { color: var(--text); }
+.ledger-switch-btn.is-active {
+    background: var(--brand);
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(37, 99, 235, .3);
+}
+.ledger-switch-btn.is-active:hover { color: #fff; }
+#modeSwitch .ledger-switch-btn[data-mode="schedule"].is-active {
+    background: linear-gradient(135deg, var(--brand), #7c3aed);
+    box-shadow: 0 2px 8px rgba(124, 58, 237, .3);
+}
+
+.ledger-summary {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    margin-bottom: 18px;
+    font-size: 15px;
+}
+
+.ledger-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 6px;
+}
+
+/* 목록형(일정형) 보기 */
+.ledger-list-wrap { display: block; }
+.ledger-list-view { display: grid; gap: 10px; max-height: 480px; overflow-y: auto; padding-right: 2px; }
+.ledger-list-group {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 10px 12px;
+    cursor: pointer;
+    transition: background 0.15s ease, border-color .15s ease;
+}
+.ledger-list-group:hover { background: var(--bg); border-color: #c7d7ff; }
+.ledger-list-group.is-selected { background: #eef4ff; border-color: var(--brand); box-shadow: 0 0 0 1px var(--brand) inset; }
+.ledger-list-date-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.ledger-list-date { font-weight: 700; font-size: 13.5px; }
+.ledger-list-date--sunday { color: #dc2626; }
+.ledger-list-date--saturday { color: #2563eb; }
+.ledger-list-date--holiday { color: #dc2626; }
+.ledger-list-date-total { display: flex; gap: 8px; font-size: 12.5px; }
+.ledger-list-items { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 6px; }
+.ledger-list-item { display: flex; align-items: center; gap: 10px; font-size: 13px; }
+.ledger-list-item-category { font-weight: 600; min-width: 88px; }
+.ledger-list-item-memo { flex: 1; color: var(--text-muted); font-size: 12.5px; }
+.ledger-list-item-amount { font-weight: 700; }
+
+.ledger-weekday {
+    text-align: center;
+    font-weight: 700;
+    color: var(--text-muted);
+    padding: 6px 0;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: .03em;
+}
+
+.ledger-cell {
+    min-height: 68px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 8px;
+    cursor: pointer;
+    transition: background 0.15s ease, border-color .15s ease;
+}
+
+.ledger-cell:hover { background: var(--bg); border-color: #c7d7ff; }
+.ledger-cell--empty { border-color: transparent; cursor: default; }
+.ledger-cell--empty:hover { background: transparent; }
+
+.ledger-cell--today { border-color: var(--brand-2); }
+.ledger-cell--selected { background: #eef4ff; border-color: var(--brand); box-shadow: 0 0 0 1px var(--brand) inset; }
+
+/* 일정 캘린더: 드래그로 기간 선택 중일 때 */
+.ledger-grid--schedule .ledger-cell:not(.ledger-cell--empty) {
+    cursor: pointer;
+    touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
+}
+.ledger-cell--drag { background: rgba(124, 58, 237, .14); border-color: #7c3aed; }
+
+.ledger-cell-day { font-size: 13px; font-weight: 700; }
+.ledger-cell-expense { font-size: 11px; color: #dc2626; font-weight: 600; }
+.ledger-cell-income { font-size: 11px; color: #16a34a; font-weight: 600; }
+
+/* 일정 캘린더 모드: 날짜 칸에 하루짜리 일정 제목 표시 */
+.ledger-event-titles { display: flex; flex-direction: column; gap: 2px; margin-top: 4px; }
+.ledger-event-title-mini {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 10.5px;
+    font-weight: 600;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.ledger-event-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; display: inline-block; }
+.ledger-event-more { font-size: 10px; color: var(--text-muted); font-weight: 700; }
+
+/* 여러 날에 걸친 일정: 이어지는 색상 막대 */
+.ledger-event-bars { display: flex; flex-direction: column; gap: 2px; margin-top: 4px; }
+.ledger-event-bar {
+    height: 14px;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+}
+.ledger-event-bar.is-start { border-top-left-radius: 4px; border-bottom-left-radius: 4px; }
+.ledger-event-bar.is-end { border-top-right-radius: 4px; border-bottom-right-radius: 4px; }
+.ledger-event-bar-spacer { height: 14px; }
+.ledger-event-bar-label {
+    font-size: 9.5px;
+    font-weight: 700;
+    color: #fff;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding: 0 5px;
+}
+.ledger-event-time { font-size: 12px; color: var(--text-muted); font-weight: 600; }
+
+/* 일정 등록 폼: 색상 태그 선택 */
+.ledger-color-picker { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; padding: 4px 0; }
+
+.ledger-daterange { display: flex; align-items: center; gap: 8px; }
+.ledger-daterange input[type="date"] { flex: 1 1 0; width: auto; }
+.ledger-daterange-sep { color: var(--text-muted); font-weight: 600; flex-shrink: 0; }
+
+.ledger-event-range {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-muted);
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 1px 8px;
+    margin-left: 4px;
+}
+.ledger-color-swatch {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    cursor: pointer;
+    padding: 0;
+    transition: transform .1s ease, border-color .15s ease;
+}
+.ledger-color-swatch:hover { transform: scale(1.1); }
+.ledger-color-swatch.is-selected { border-color: var(--text); box-shadow: 0 0 0 2px var(--bg-elevated) inset; }
+.ledger-cell-holiday-name {
+    font-size: 10px;
+    color: #dc2626;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* 토요일/일요일/공휴일 색상 */
+.ledger-weekday--sunday { color: #dc2626; }
+.ledger-weekday--saturday { color: #2563eb; }
+.ledger-cell--sunday .ledger-cell-day { color: #dc2626; }
+.ledger-cell--saturday .ledger-cell-day { color: #2563eb; }
+.ledger-cell--holiday .ledger-cell-day { color: #dc2626; }
+.ledger-cell--holiday { border-color: #fecaca; }
+
+.ledger-tx-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.ledger-tx-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 12px 14px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    transition: border-color .15s ease, background .15s ease;
+}
+.ledger-tx-item:hover { border-color: #c7d7ff; background: var(--bg); }
+.ledger-tx-main { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.ledger-tx-sub { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.ledger-tx-category { font-weight: 700; font-size: 14px; }
+.ledger-tx-memo { flex: 1; color: var(--text-muted); font-size: 12.5px; }
+.ledger-tx-actions { display: flex; gap: 6px; flex-shrink: 0; }
+.ledger-tx-amount { font-weight: 700; font-size: 15px; }
+.ledger-tx-amount.is-income { color: #16a34a; }
+.ledger-tx-amount.is-expense { color: #dc2626; }
+.is-income { color: #16a34a; }
+.is-expense { color: #dc2626; }
+
+.btn-xs {
+    height: 26px;
+    padding: 0 9px;
+    border-radius: 6px;
+    font-size: 12px;
+}
+
+/* 날짜 패널 헤더: 날짜 + 그날의 수입/지출/합계 */
+.ledger-day-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+.ledger-day-totals { display: flex; gap: 8px; flex-wrap: wrap; }
+.ledger-day-chip {
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 12.5px;
+    font-weight: 700;
+    background: var(--bg);
+    border: 1px solid var(--border);
+}
+.ledger-day-chip.is-income { color: #16a34a; }
+.ledger-day-chip.is-expense { color: #dc2626; }
+.ledger-day-chip.ledger-day-net { background: transparent; border-style: dashed; }
+
+/* 등록된 내역 / 새 항목 추가 영역 구분 */
+.ledger-section-label {
+    margin: 16px 0 8px;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: .05em;
+}
+.ledger-form-panel {
+    margin-top: 18px;
+    padding: 16px;
+    border-radius: var(--radius-md);
+    background: var(--bg);
+    border: 1px solid var(--border);
+}
+.ledger-form-panel .ledger-section-label { margin-top: 0; }
+
+.ledger-tx-recurring-badge { font-size: 12px; }
+/* .form label/input의 display:block, width:100% 규칙보다 우선하도록 .form과 함께 명시 */
+.form .ledger-recurring-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 2px 0 0;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-muted);
+    cursor: pointer;
+}
+.form .ledger-recurring-label input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    padding: 0;
+    accent-color: var(--brand);
+    cursor: pointer;
+}
+
+@media (max-width: 768px) {
+    .ledger-page { padding: 12px; }
+    .ledger-cell { min-height: 48px; }
+    .ledger-summary { gap: 14px; font-size: 13px; }
+}
+
+/* 다크모드: 수입/지출 색상만 어두운 배경에 맞게 보정 */
+html.dark .ledger-cell--selected { background: #1e2a3d; }
+html.dark .ledger-cell--drag { background: rgba(124, 58, 237, .3); }
+html.dark .ledger-cell-expense,
+html.dark .ledger-tx-amount.is-expense,
+html.dark .is-expense { color: #fca5a5; }
+html.dark .ledger-cell-income,
+html.dark .ledger-tx-amount.is-income,
+html.dark .is-income { color: #6ee7b7; }
+
+html.dark .ledger-weekday--sunday,
+html.dark .ledger-cell--sunday .ledger-cell-day,
+html.dark .ledger-cell--holiday .ledger-cell-day,
+html.dark .ledger-cell-holiday-name { color: #fca5a5; }
+html.dark .ledger-weekday--saturday,
+html.dark .ledger-cell--saturday .ledger-cell-day { color: #93c5fd; }
+html.dark .ledger-cell--holiday { border-color: #7f1d1d; }
+
+html.dark .ledger-list-group.is-selected { background: #1e2a3d; }
+html.dark .ledger-list-date--sunday,
+html.dark .ledger-list-date--holiday { color: #fca5a5; }
+
+/* ===========================================
+   친구 캘린더 비교 화면
+   =========================================== */
+.compare-page { display: grid; gap: 20px; max-width: 1100px; margin: 0 auto; padding: 24px; }
+.compare-columns { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.compare-col h3 { margin: 0 0 12px; text-align: center; }
+
+.compare-summary { display: grid; gap: 6px; font-size: 14px; }
+.compare-callout {
+    margin-top: 6px;
+    padding: 8px 12px;
+    border-radius: var(--radius-sm);
+    background: var(--bg);
+    border: 1px solid var(--border);
+    font-weight: 700;
+}
+
+.cmp-weekday {
+    text-align: center;
+    font-weight: 700;
+    color: var(--text-muted);
+    padding: 4px 0;
+    font-size: 11px;
+}
+.cmp-weekday--sunday { color: #dc2626; }
+.cmp-weekday--saturday { color: #2563eb; }
+
+.cmp-cell {
+    min-height: 60px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 4px 6px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: background .15s ease, border-color .15s ease;
+}
+.cmp-cell--empty { border-color: transparent; cursor: default; }
+.cmp-cell:hover { background: var(--bg); border-color: #c7d7ff; }
+.cmp-cell--selected { background: #eef4ff; border-color: var(--brand); box-shadow: 0 0 0 1px var(--brand) inset; }
+.cmp-cell-day { font-size: 11px; font-weight: 700; }
+.cmp-cell--sunday .cmp-cell-day { color: #dc2626; }
+.cmp-cell--saturday .cmp-cell-day { color: #2563eb; }
+.cmp-cell-expense { font-size: 9.5px; color: #dc2626; font-weight: 600; }
+.cmp-cell-income { font-size: 9.5px; color: #16a34a; font-weight: 600; }
+.cmp-event-title {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    font-size: 9px;
+    font-weight: 600;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.cmp-event-more { font-size: 8.5px; color: var(--text-muted); font-weight: 700; }
+
+@media (max-width: 768px) {
+    .compare-columns { grid-template-columns: 1fr; }
+}
+
+html.dark .cmp-weekday--sunday,
+html.dark .cmp-cell--sunday .cmp-cell-day,
+html.dark .cmp-cell-expense { color: #fca5a5; }
+html.dark .cmp-weekday--saturday,
+html.dark .cmp-cell--saturday .cmp-cell-day { color: #93c5fd; }
+html.dark .cmp-cell-income { color: #6ee7b7; }
+html.dark .cmp-cell--selected { background: #1e2a3d; }
+html.dark .ledger-list-date--saturday { color: #93c5fd; }

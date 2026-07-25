@@ -1,57 +1,36 @@
-/*대시보드 페이지*/
+/*가계부(캘린더) 페이지 - 홈*/
 import { mount } from '../ui/mount.js';
+import LedgerPage from '../pages/ledger/ledger.page.js';
+
+/*재무 대시보드 페이지(돈 흐름 + 반복 항목 설정)*/
 import DashboardPage from '../pages/dashboard/dashboard.page.js';
-
-
-
-/*회원관리 페이지*/
-import UsersListPage from '../pages/users/list.page.js';
-import UsersNewPage from '../pages/users/new.page.js';
-
-
-import MoneyTemplatePage from "../pages/money/money-template.page.js";
-
-
-
-/*주식관리 페이지*/
-import StockListPage from '../pages/stocks/list.page.js';
-import StockDetailPage from '../pages/stocks/detail.page.js';
-import StockSearchPage from '../pages/stocks/search.page.js';
-
-/*문서관리 페이지*/
-import DocuMindPage from '../pages/documind/documind.page.js';
-
-/*메신저*/
-import ChatPage from '../pages/chat/chat.page.js';
-
-/*서비스 관리*/
-import ProvidersPage from "../pages/providers/providers.page.js";
 
 /*회원가입,로그인 페이지*/
 import RegisterPage from '../pages/auth/register.page.js';
 import LoginPage from '../pages/auth/login.page.js';
 
+/*관리자 - 회원관리 페이지*/
+import AdminMembersPage from '../pages/admin/members.page.js';
+
+/*친구*/
+import FriendsPage from '../pages/friends/friends.page.js';
+
+/*친구 캘린더 비교*/
+import ComparePage from '../pages/compare/compare.page.js';
+
 const routes = {
-    /*사용자 페이지*/
-    '#/': DashboardPage,
-    '#/dashboard': DashboardPage,
-    '#/money/templates': MoneyTemplatePage,
-    /*회원관리*/
-    '#/users': UsersListPage,
-    '#/users/new': UsersNewPage,
+    /*홈 = 가계부*/
+    '#/': LedgerPage,
+    '#/dashboard': LedgerPage,
+    '#/money/dashboard': DashboardPage,
     /*로그인*/
     '#/login': LoginPage,
     '#/register': RegisterPage,
-    /*주식관리*/
-    '#/stocks': StockListPage, //목록
-    '#/stocks/detail': StockDetailPage, //상세+메모 CRUD
-    '#/stocks/search': StockSearchPage, //종목 등록
-    /*문서관리*/
-    '#/documind': DocuMindPage,
-    /*메신저*/
-    '#/chat': ChatPage,
-    /*서비스관리*/
-    '#/providers': ProvidersPage,
+    /*관리자*/
+    '#/admin/members': AdminMembersPage,
+    /*친구*/
+    '#/friends': FriendsPage,
+    '#/compare': ComparePage,
 };
 
 /**
@@ -60,15 +39,10 @@ const routes = {
  */
 const authRequiredRoutes = [
     '#/dashboard',
-    '#/money/templates',
-    '#/users',
-    '#/users/new',
-    '#/stocks',
-    '#/stocks/detail',
-    '#/stocks/search',
-    '#/documind',
-    '#/chat',
-    '#/providers'
+    '#/money/dashboard',
+    '#/admin/members',
+    '#/friends',
+    '#/compare',
 ];
 
 export async function navigate() {

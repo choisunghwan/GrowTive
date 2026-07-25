@@ -25,4 +25,6 @@ public class UserResponseDto {
 
     private String displayName;
 
+    private String role;
+
 }

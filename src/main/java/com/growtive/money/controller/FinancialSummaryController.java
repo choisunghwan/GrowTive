@@ -1,5 +1,6 @@
 package com.growtive.money.controller;
 
+import com.growtive.common.exception.UnauthorizedException;
 import com.growtive.money.dto.MoneySummaryDto;
 import com.growtive.money.service.FinancialSummaryService;
 import jakarta.servlet.http.HttpSession;
@@ -16,7 +17,7 @@ public class FinancialSummaryController {
     private Long getUserId(HttpSession session) {
         Long userId = (Long) session.getAttribute("userId");
         if (userId == null) {
-            throw new RuntimeException("로그인이 필요합니다.");
+            throw new UnauthorizedException("로그인이 필요합니다.");
         }
         return userId;
     }

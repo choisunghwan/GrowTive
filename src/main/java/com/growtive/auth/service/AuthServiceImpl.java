@@ -1,6 +1,8 @@
 package com.growtive.auth.service;
 
 import com.growtive.auth.mapper.AuthMapper;
+import com.growtive.common.exception.BadRequestException;
+import com.growtive.common.exception.UnauthorizedException;
 import com.growtive.user.model.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -25,7 +27,7 @@ public class AuthServiceImpl implements AuthService {
         User existUser = authMapper.findByUsername(username);
 
         if (existUser != null) {
-            throw new RuntimeException("이미 존재하는 아이디입니다.");
+            throw new BadRequestException("이미 존재하는 아이디입니다.");
         }
 
         // 🔐 BCrypt 암호화
@@ -50,13 +52,15 @@ public class AuthServiceImpl implements AuthService {
         User user = authMapper.findByUsername(username);
 
         if (user == null) {
-            throw new RuntimeException("사용자가 없습니다.");
+            throw new UnauthorizedException("사용자가 없습니다.");
         }
 
         // 🔐 BCrypt 비교
         if (!passwordEncoder.matches(password, user.getPassword())) {
-            throw new RuntimeException("비밀번호가 틀립니다.");
+            throw new UnauthorizedException("비밀번호가 틀립니다.");
         }
+
+        authMapper.updateLastLogin(user.getId());
 
         return user;
     }

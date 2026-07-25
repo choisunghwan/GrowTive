@@ -1,12 +1,60 @@
+/* =============================
+   🎨 GrowTive 디자인 토큰
+   ============================= */
+:root {
+    --brand: #2563eb;
+    --brand-hover: #1d4ed8;
+    --brand-2: #16a34a;
+
+    --bg: #f4f6fb;
+    --bg-elevated: #ffffff;
+    --text: #1e2530;
+    --text-muted: #64748b;
+    --border: #e5e9f2;
+
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 18px;
+
+    --shadow-sm: 0 1px 2px rgba(15, 23, 42, .04);
+    --shadow-md: 0 6px 20px rgba(15, 23, 42, .06);
+    --shadow-lg: 0 20px 45px rgba(15, 23, 42, .12);
+
+    --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "Pretendard Variable",
+        Pretendard, Roboto, "Noto Sans KR", "Malgun Gothic", sans-serif;
+}
+
+html.dark {
+    --brand: #3b82f6;
+    --brand-hover: #60a5fa;
+    --brand-2: #22c55e;
+
+    --bg: #0f172a;
+    --bg-elevated: #1a2434;
+    --text: #e5e9f2;
+    --text-muted: #94a3b8;
+    --border: #2b3648;
+
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, .3);
+    --shadow-md: 0 10px 25px rgba(0, 0, 0, .45);
+    --shadow-lg: 0 24px 50px rgba(0, 0, 0, .55);
+}
+
 * {
     box-sizing: border-box;
 }
 
 body {
     margin: 0;
-    font-family: system-ui, sans-serif;
-    color: #222;
-    background: #fafafa;
+    font-family: var(--font-sans);
+    color: var(--text);
+    background: var(--bg);
+    -webkit-font-smoothing: antialiased;
+    transition: background .2s ease, color .2s ease;
+}
+
+h1, h2, h3 {
+    letter-spacing: -.01em;
 }
 
 a {
@@ -15,27 +63,50 @@ a {
 }
 
 .btn {
-    display: inline-block;
-    padding: 8px 12px;
-    border-radius: 6px;
-    background: #eee;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 36px;
+    padding: 0 14px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background: var(--bg-elevated);
+    color: var(--text);
+    cursor: pointer;
+    font-size: 14px;
+    transition: background .15s ease, border-color .15s ease, transform .05s ease;
+}
+
+.btn:hover {
+    background: #eef3ff;
+    border-color: #c7d7ff;
+}
+
+.btn:active {
+    transform: translateY(1px);
 }
 
 .primary {
-    background: #0078ff;
+    background: var(--brand);
+    border-color: var(--brand);
     color: #fff;
 }
 
+.primary:hover {
+    background: var(--brand-hover);
+    border-color: var(--brand-hover);
+}
+
 .muted {
-    color: #666;
+    color: var(--text-muted);
 }
 
 .ok {
-    color: #2e7d32;
+    color: #16a34a;
 }
 
 .error {
-    color: #d32f2f;
+    color: #dc2626;
 }
 
 .table {
@@ -45,17 +116,18 @@ a {
 
 .table th,
 .table td {
-    border-bottom: 1px solid #eee;
-    padding: 6px 8px;
+    border-bottom: 1px solid var(--border);
+    padding: 10px 8px;
     text-align: left;
 }
 
 .card {
-    background: #fff;
-    padding: 16px;
-    border: 1px solid #e5e5e5;
-    border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, .03);
+    background: var(--bg-elevated);
+    padding: 20px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+    transition: background .2s ease, border-color .2s ease;
 }
 
 /* =============================
@@ -63,31 +135,9 @@ a {
    html에 .dark 클래스가 붙었을 때 적용
    ============================= */
 
-html.dark body {
-    background: #111827;
-    color: #e5e7eb;
-}
-
-/* 공통 카드 다크 모드 */
-html.dark .card {
-    background: #1f2933;
-    border-color: #374151;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
-}
-
-/* 버튼 계열 */
-html.dark .btn {
-    background: #374151;
-    color: #e5e7eb;
-}
-
-html.dark .primary {
-    background: #2563eb;
-    color: #f9fafb;
-}
-
-html.dark .muted {
-    color: #9ca3af;
+html.dark .btn:hover {
+    background: #23324a;
+    border-color: #3b4a63;
 }
 
 html.dark .ok {
@@ -96,10 +146,4 @@ html.dark .ok {
 
 html.dark .error {
     color: #fca5a5;
-}
-
-/* 테이블 라인톤 */
-html.dark .table th,
-html.dark .table td {
-    border-bottom: 1px solid #374151;
 }

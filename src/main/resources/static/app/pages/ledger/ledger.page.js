@@ -1,0 +1,940 @@
+/**
+ * 📅 가계부 (캘린더) 페이지 - 홈
+ * 날짜를 클릭해서 그날 쓴/번 돈을 바로 기록한다.
+ * 같은 화면에서 "일정 캘린더" 모드로 전환하면 돈이 아닌 일반 일정(이벤트)을 등록할 수 있다.
+ */
+
+const EXPENSE_CATEGORIES = ['식비', '교통', '카페', '쇼핑', '월세', '주거통신', '의료', '문화', '기타'];
+const INCOME_CATEGORIES = ['월급', '부수입', '용돈', '이자/배당', '기타'];
+
+const CATEGORY_ICONS = {
+    '식비': '🍚',
+    '교통': '🚌',
+    '카페': '☕',
+    '쇼핑': '🛍️',
+    '월세': '🏠',
+    '주거통신': '📶',
+    '의료': '🏥',
+    '문화': '🎭',
+    '기타': '📦',
+    '월급': '💼',
+    '부수입': '💵',
+    '용돈': '🎁',
+    '이자/배당': '📈'
+};
+
+export function categoryIcon(category) {
+    return CATEGORY_ICONS[category] || '🏷️';
+}
+
+const COLOR_TAGS = [
+    { key: 'blue', hex: '#2563eb' },
+    { key: 'indigo', hex: '#4f46e5' },
+    { key: 'purple', hex: '#7c3aed' },
+    { key: 'pink', hex: '#db2777' },
+    { key: 'red', hex: '#dc2626' },
+    { key: 'orange', hex: '#f59e0b' },
+    { key: 'yellow', hex: '#ca8a04' },
+    { key: 'green', hex: '#16a34a' },
+    { key: 'teal', hex: '#0d9488' },
+    { key: 'gray', hex: '#64748b' },
+];
+
+function colorTagHex(key) {
+    return (COLOR_TAGS.find(c => c.key === key) || COLOR_TAGS[0]).hex;
+}
+
+const ICON_CALENDAR = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>`;
+const ICON_LIST = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>`;
+const ICON_WALLET = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"/></svg>`;
+const ICON_EVENT = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><circle cx="8" cy="15" r="1" fill="currentColor" stroke="none"/><circle cx="12" cy="15" r="1" fill="currentColor" stroke="none"/><circle cx="16" cy="15" r="1" fill="currentColor" stroke="none"/></svg>`;
+
+function categoriesForType(type) {
+    return type === 'INCOME' ? INCOME_CATEGORIES : EXPENSE_CATEGORIES;
+}
+
+function pad2(n) { return String(n).padStart(2, '0'); }
+function ymd(year, month, day) { return `${year}-${pad2(month)}-${pad2(day)}`; }
+function todayYmd() {
+    const d = new Date();
+    return ymd(d.getFullYear(), d.getMonth() + 1, d.getDate());
+}
+function won(n) { return `${Number(n || 0).toLocaleString('ko-KR')}원`; }
+
+// 대한민국 공휴일 (관공서 공휴일 규정 기준, 대체공휴일 포함)
+// 설날/추석/부처님오신날은 음력 기준이라 매년 날짜가 달라져서 연도별로 직접 채워둔 표.
+const HOLIDAYS = {
+    // 2025
+    '2025-01-01': '신정',
+    '2025-01-28': '설날 연휴', '2025-01-29': '설날', '2025-01-30': '설날 연휴',
+    '2025-03-01': '삼일절', '2025-03-03': '대체공휴일',
+    '2025-05-05': '어린이날/부처님오신날', '2025-05-06': '대체공휴일',
+    '2025-06-06': '현충일',
+    '2025-08-15': '광복절',
+    '2025-10-03': '개천절',
+    '2025-10-05': '추석 연휴', '2025-10-06': '추석', '2025-10-07': '추석 연휴', '2025-10-08': '대체공휴일',
+    '2025-10-09': '한글날',
+    '2025-12-25': '성탄절',
+    // 2026
+    '2026-01-01': '신정',
+    '2026-02-16': '설날 연휴', '2026-02-17': '설날', '2026-02-18': '설날 연휴',
+    '2026-03-01': '삼일절', '2026-03-02': '대체공휴일',
+    '2026-05-05': '어린이날',
+    '2026-05-24': '부처님오신날', '2026-05-25': '대체공휴일',
+    '2026-06-06': '현충일',
+    '2026-08-15': '광복절', '2026-08-17': '대체공휴일',
+    '2026-09-24': '추석 연휴', '2026-09-25': '추석', '2026-09-26': '추석 연휴',
+    '2026-10-03': '개천절',
+    '2026-10-09': '한글날',
+    '2026-12-25': '성탄절',
+    // 2027 (음력 공휴일은 잠정치)
+    '2027-01-01': '신정',
+    '2027-02-06': '설날 연휴', '2027-02-07': '설날', '2027-02-08': '설날 연휴', '2027-02-09': '대체공휴일',
+    '2027-03-01': '삼일절',
+    '2027-05-05': '어린이날',
+    '2027-06-06': '현충일',
+    '2027-08-15': '광복절',
+    '2027-09-14': '추석 연휴', '2027-09-15': '추석', '2027-09-16': '추석 연휴',
+    '2027-10-03': '개천절',
+    '2027-10-09': '한글날',
+    '2027-12-25': '성탄절',
+};
+
+function formatAmountInput(el) {
+    const digits = el.value.replace(/[^\d]/g, '');
+    el.value = digits ? Number(digits).toLocaleString('ko-KR') : '';
+}
+function parseAmountInput(el) {
+    return Number(el.value.replace(/[^\d]/g, '')) || 0;
+}
+
+export default function LedgerPage() {
+
+    const now = new Date();
+
+    const VIEW_MODE_KEY = 'growtive-ledger-view';
+    const MODE_KEY = 'growtive-ledger-mode';
+
+    const state = {
+        year: now.getFullYear(),
+        month: now.getMonth() + 1,
+        transactions: [],        // 이번 달 전체 (가계부)
+        byDate: {},               // { 'YYYY-MM-DD': [tx, ...] }
+        events: [],               // 이번 달 전체 (일정)
+        eventsByDate: {},         // { 'YYYY-MM-DD': [event, ...] }
+        selectedDate: todayYmd(),
+        editingId: null,
+        editingOriginalRecurring: false,
+        editingEventId: null,
+        viewMode: localStorage.getItem(VIEW_MODE_KEY) === 'list' ? 'list' : 'calendar',
+        mode: localStorage.getItem(MODE_KEY) === 'schedule' ? 'schedule' : 'money',
+    };
+
+    function isSchedule() { return state.mode === 'schedule'; }
+
+    function gridContainerClass() {
+        if (isSchedule()) return 'ledger-grid ledger-grid--schedule';
+        return state.viewMode === 'list' ? 'ledger-list-wrap' : 'ledger-grid';
+    }
+
+    function groupByDate() {
+        state.byDate = {};
+        for (const tx of state.transactions) {
+            const key = tx.date;
+            (state.byDate[key] ||= []).push(tx);
+        }
+    }
+
+    function dateRange(startStr, endStr) {
+        const dates = [];
+        const cur = new Date(startStr + 'T00:00:00');
+        const end = new Date(endStr + 'T00:00:00');
+        while (cur <= end) {
+            dates.push(ymd(cur.getFullYear(), cur.getMonth() + 1, cur.getDate()));
+            cur.setDate(cur.getDate() + 1);
+        }
+        return dates;
+    }
+
+    function groupEventsByDate() {
+        state.eventsByDate = {};
+        for (const ev of state.events) {
+            for (const dateStr of dateRange(ev.startDate, ev.endDate)) {
+                (state.eventsByDate[dateStr] ||= []).push(ev);
+            }
+        }
+    }
+
+    function dayTotal(dateStr) {
+        const list = state.byDate[dateStr] || [];
+        let income = 0, expense = 0;
+        for (const tx of list) {
+            if (tx.type === 'INCOME') income += Number(tx.amount);
+            else expense += Number(tx.amount);
+        }
+        return { income, expense };
+    }
+
+    function monthTotal() {
+        let income = 0, expense = 0;
+        for (const tx of state.transactions) {
+            if (tx.type === 'INCOME') income += Number(tx.amount);
+            else expense += Number(tx.amount);
+        }
+        return { income, expense };
+    }
+
+    async function loadMonth() {
+        const { data } = await axios.get('/api/money/ledger', {
+            params: { year: state.year, month: state.month }
+        });
+        state.transactions = data;
+        groupByDate();
+    }
+
+    async function loadEvents() {
+        const { data } = await axios.get('/api/schedule', {
+            params: { year: state.year, month: state.month }
+        });
+        state.events = data;
+        groupEventsByDate();
+    }
+
+    function calendarCells() {
+        const first = new Date(state.year, state.month - 1, 1);
+        const startWeekday = first.getDay(); // 0=일
+        const daysInMonth = new Date(state.year, state.month, 0).getDate();
+
+        const cells = [];
+        for (let i = 0; i < startWeekday; i++) cells.push(null);
+        for (let d = 1; d <= daysInMonth; d++) cells.push(d);
+        return cells;
+    }
+
+    function weekdayHeadersHtml() {
+        return ['일', '월', '화', '수', '목', '금', '토']
+            .map((w, i) => {
+                const cls = i === 0 ? ' ledger-weekday--sunday' : (i === 6 ? ' ledger-weekday--saturday' : '');
+                return `<div class="ledger-weekday${cls}">${w}</div>`;
+            }).join('');
+    }
+
+    function cellClasses(dateStr, idx) {
+        const today = todayYmd();
+        const isSelected = dateStr === state.selectedDate;
+        const isToday = dateStr === today;
+        const weekday = idx % 7; // 0=일, 6=토
+        const holidayName = HOLIDAYS[dateStr];
+
+        const classes = ['ledger-cell'];
+        if (isSelected) classes.push('ledger-cell--selected');
+        if (isToday) classes.push('ledger-cell--today');
+        if (holidayName) classes.push('ledger-cell--holiday');
+        else if (weekday === 0) classes.push('ledger-cell--sunday');
+        else if (weekday === 6) classes.push('ledger-cell--saturday');
+        return { classes, holidayName };
+    }
+
+    function renderCalendarGrid() {
+        const cellsHtml = calendarCells().map((day, idx) => {
+            if (day === null) return `<div class="ledger-cell ledger-cell--empty"></div>`;
+            const dateStr = ymd(state.year, state.month, day);
+            const { income, expense } = dayTotal(dateStr);
+            const { classes, holidayName } = cellClasses(dateStr, idx);
+
+            return `
+                <div class="${classes.join(' ')}" data-date="${dateStr}"${holidayName ? ` title="${holidayName}"` : ''}>
+                    <div class="ledger-cell-day">${day}</div>
+                    ${holidayName ? `<div class="ledger-cell-holiday-name">${holidayName}</div>` : ''}
+                    ${expense > 0 ? `<div class="ledger-cell-expense">-${won(expense)}</div>` : ''}
+                    ${income > 0 ? `<div class="ledger-cell-income">+${won(income)}</div>` : ''}
+                </div>`;
+        }).join('');
+
+        return weekdayHeadersHtml() + cellsHtml;
+    }
+
+    const MAX_EVENT_LANES = 2;
+
+    // 여러 날에 걸친 일정끼리 겹치지 않도록 "레인"을 배정한다 (구글 캘린더 월간뷰와 같은 방식).
+    function computeMultiDayLanes() {
+        const multiDay = state.events.filter(ev => ev.startDate !== ev.endDate);
+        const sorted = [...multiDay].sort((a, b) => {
+            if (a.startDate !== b.startDate) return a.startDate < b.startDate ? -1 : 1;
+            return a.endDate < b.endDate ? 1 : -1; // 시작일이 같으면 더 긴 일정을 위 레인에
+        });
+        const laneEnds = [];
+        const laneOf = new Map();
+        sorted.forEach(ev => {
+            let laneIdx = laneEnds.findIndex(end => end < ev.startDate);
+            if (laneIdx === -1) laneIdx = laneEnds.length;
+            laneEnds[laneIdx] = ev.endDate;
+            laneOf.set(ev.id, laneIdx);
+        });
+        return { laneOf, laneCount: laneEnds.length };
+    }
+
+    function renderScheduleCalendarGrid() {
+        const MAX_TITLES = 3;
+        const { laneOf, laneCount } = computeMultiDayLanes();
+        const visibleLanes = Math.min(laneCount, MAX_EVENT_LANES);
+
+        const cellsHtml = calendarCells().map((day, idx) => {
+            if (day === null) return `<div class="ledger-cell ledger-cell--empty"></div>`;
+            const dateStr = ymd(state.year, state.month, day);
+            const dayEvents = state.eventsByDate[dateStr] || [];
+            const { classes, holidayName } = cellClasses(dateStr, idx);
+
+            const multiDayEvents = dayEvents.filter(ev => ev.startDate !== ev.endDate);
+            const singleDayEvents = dayEvents.filter(ev => ev.startDate === ev.endDate);
+
+            let barsHtml = '';
+            for (let lane = 0; lane < visibleLanes; lane++) {
+                const ev = multiDayEvents.find(e => laneOf.get(e.id) === lane);
+                if (!ev) {
+                    barsHtml += `<div class="ledger-event-bar-spacer"></div>`;
+                    continue;
+                }
+                const isStart = dateStr === ev.startDate;
+                const isEnd = dateStr === ev.endDate;
+                const cls = `${isStart ? ' is-start' : ''}${isEnd ? ' is-end' : ''}`;
+                barsHtml += `<div class="ledger-event-bar${cls}" style="background:${colorTagHex(ev.colorTag)}" title="${ev.title}">${isStart ? `<span class="ledger-event-bar-label">${ev.title}</span>` : ''}</div>`;
+            }
+            const laneOverflow = multiDayEvents.filter(ev => laneOf.get(ev.id) >= MAX_EVENT_LANES).length;
+            if (laneOverflow > 0) {
+                barsHtml += `<span class="ledger-event-more">+${laneOverflow}</span>`;
+            }
+
+            const titlesHtml = singleDayEvents.slice(0, MAX_TITLES).map(ev => `
+                <div class="ledger-event-title-mini" title="${ev.title}">
+                    <span class="ledger-event-dot" style="background:${colorTagHex(ev.colorTag)}"></span>${ev.title}
+                </div>`).join('');
+            const titleOverflow = singleDayEvents.length > MAX_TITLES
+                ? `<div class="ledger-event-more">+${singleDayEvents.length - MAX_TITLES}건 더</div>` : '';
+
+            return `
+                <div class="${classes.join(' ')}" data-date="${dateStr}"${holidayName ? ` title="${holidayName}"` : ''}>
+                    <div class="ledger-cell-day">${day}</div>
+                    ${holidayName ? `<div class="ledger-cell-holiday-name">${holidayName}</div>` : ''}
+                    ${barsHtml ? `<div class="ledger-event-bars">${barsHtml}</div>` : ''}
+                    ${(titlesHtml || titleOverflow) ? `<div class="ledger-event-titles">${titlesHtml}${titleOverflow}</div>` : ''}
+                </div>`;
+        }).join('');
+
+        return weekdayHeadersHtml() + cellsHtml;
+    }
+
+    function renderListView() {
+        const dates = Object.keys(state.byDate).sort();
+        if (dates.length === 0) {
+            return `<div class="hint">이번 달 등록된 내역이 없습니다.</div>`;
+        }
+        return `<div class="ledger-list-view">${dates.map(dateStr => {
+            const list = [...state.byDate[dateStr]].sort((a, b) => a.id - b.id);
+            const { income, expense } = dayTotal(dateStr);
+            const isSelected = dateStr === state.selectedDate;
+            const dayNum = Number(dateStr.split('-')[2]);
+            const weekday = new Date(dateStr).getDay();
+            const weekdayName = ['일', '월', '화', '수', '목', '금', '토'][weekday];
+            const holidayName = HOLIDAYS[dateStr];
+
+            const dateClasses = ['ledger-list-date'];
+            if (holidayName) dateClasses.push('ledger-list-date--holiday');
+            else if (weekday === 0) dateClasses.push('ledger-list-date--sunday');
+            else if (weekday === 6) dateClasses.push('ledger-list-date--saturday');
+
+            return `
+            <div class="ledger-list-group${isSelected ? ' is-selected' : ''}" data-date="${dateStr}">
+                <div class="ledger-list-date-row">
+                    <span class="${dateClasses.join(' ')}">${dayNum}일 (${weekdayName})${holidayName ? ` · ${holidayName}` : ''}</span>
+                    <span class="ledger-list-date-total">
+                        ${income > 0 ? `<b class="is-income">+${won(income)}</b>` : ''}
+                        ${expense > 0 ? `<b class="is-expense">-${won(expense)}</b>` : ''}
+                    </span>
+                </div>
+                <ul class="ledger-list-items">
+                    ${list.map(tx => `
+                        <li class="ledger-list-item">
+                            <span class="ledger-list-item-category">${categoryIcon(tx.category)} ${tx.category}${(tx.recurring || tx.recurringOriginId) ? ' <span class="ledger-tx-recurring-badge" title="매달 반복">🔁</span>' : ''}</span>
+                            <span class="ledger-list-item-memo">${tx.memo ? tx.memo : ''}</span>
+                            <span class="ledger-list-item-amount ${tx.type === 'INCOME' ? 'is-income' : 'is-expense'}">${tx.type === 'INCOME' ? '+' : '-'}${won(tx.amount)}</span>
+                        </li>
+                    `).join('')}
+                </ul>
+            </div>`;
+        }).join('')}</div>`;
+    }
+
+    function renderMainView() {
+        if (isSchedule()) return renderScheduleCalendarGrid();
+        return state.viewMode === 'list' ? renderListView() : renderCalendarGrid();
+    }
+
+    function renderDayTotalsHtml(dateStr) {
+        const { income, expense } = dayTotal(dateStr);
+        if (income === 0 && expense === 0) return '';
+        const net = income - expense;
+        return `
+            <span class="ledger-day-chip is-income">수입 +${won(income)}</span>
+            <span class="ledger-day-chip is-expense">지출 -${won(expense)}</span>
+            <span class="ledger-day-chip ledger-day-net ${net >= 0 ? 'is-income' : 'is-expense'}">합계 ${net >= 0 ? '+' : '-'}${won(Math.abs(net))}</span>
+        `;
+    }
+
+    function renderDayList() {
+        const list = state.byDate[state.selectedDate] || [];
+        if (list.length === 0) {
+            return `<div class="hint">이 날짜에 등록된 내역이 없습니다.</div>`;
+        }
+        return `<ul class="ledger-tx-list">${list.map(tx => {
+            const isOrigin = tx.recurring && !tx.recurringOriginId;
+            const isRecurringRelated = tx.recurring || tx.recurringOriginId;
+            return `
+            <li class="ledger-tx-item">
+                <div class="ledger-tx-main">
+                    <span class="ledger-tx-category">${categoryIcon(tx.category)} ${tx.category}${isRecurringRelated ? ' <span class="ledger-tx-recurring-badge" title="매달 반복">🔁</span>' : ''}${tx.hidden ? ' <span class="ledger-tx-recurring-badge" title="친구에게 숨김">🙈</span>' : ''}</span>
+                    <span class="ledger-tx-amount ${tx.type === 'INCOME' ? 'is-income' : 'is-expense'}">
+                        ${tx.type === 'INCOME' ? '+' : '-'}${won(tx.amount)}
+                    </span>
+                </div>
+                <div class="ledger-tx-sub">
+                    <span class="ledger-tx-memo">${tx.memo ? tx.memo : ''}</span>
+                    <span class="ledger-tx-actions">
+                        <button class="btn btn-xs" data-edit="${tx.id}">수정</button>
+                        ${isOrigin ? `<button class="btn btn-xs" data-stop="${tx.id}">반복 중지</button>` : ''}
+                        <button class="btn btn-xs btn-danger" data-del="${tx.id}">삭제</button>
+                    </span>
+                </div>
+            </li>`;
+        }).join('')}</ul>`;
+    }
+
+    function formatMonthDay(dateStr) {
+        const [, m, d] = dateStr.split('-');
+        return `${Number(m)}/${Number(d)}`;
+    }
+
+    function eventRangeBadge(ev) {
+        if (ev.startDate === ev.endDate) return '';
+        return ` <span class="ledger-event-range">${formatMonthDay(ev.startDate)} ~ ${formatMonthDay(ev.endDate)}</span>`;
+    }
+
+    function renderEventDayList() {
+        const list = [...(state.eventsByDate[state.selectedDate] || [])].sort((a, b) => {
+            if (!a.time) return 1;
+            if (!b.time) return -1;
+            return a.time.localeCompare(b.time);
+        });
+        if (list.length === 0) {
+            return `<div class="hint">이 날짜에 등록된 일정이 없습니다.</div>`;
+        }
+        return `<ul class="ledger-tx-list">${list.map(ev => `
+            <li class="ledger-tx-item">
+                <div class="ledger-tx-main">
+                    <span class="ledger-tx-category"><span class="ledger-event-dot" style="background:${colorTagHex(ev.colorTag)}"></span> ${ev.title}${eventRangeBadge(ev)}${ev.hidden ? ' <span class="ledger-tx-recurring-badge" title="친구에게 숨김">🙈</span>' : ''}</span>
+                    ${ev.time ? `<span class="ledger-event-time">${ev.time.slice(0, 5)}</span>` : ''}
+                </div>
+                <div class="ledger-tx-sub">
+                    <span class="ledger-tx-memo">${ev.memo ? ev.memo : ''}</span>
+                    <span class="ledger-tx-actions">
+                        <button class="btn btn-xs" data-edit-event="${ev.id}">수정</button>
+                        <button class="btn btn-xs btn-danger" data-del-event="${ev.id}">삭제</button>
+                    </span>
+                </div>
+            </li>`).join('')}</ul>`;
+    }
+
+    function categoryOptions(type) {
+        return categoriesForType(type).map(c => `<option value="${c}">${categoryIcon(c)} ${c}</option>`).join('')
+            + `<option value="__custom__">✏️ 직접 입력</option>`;
+    }
+
+    function moneyFormHtml() {
+        return `
+            <form id="txForm" class="form">
+                <div class="btn-row">
+                    <label><input type="radio" name="txType" value="EXPENSE" checked> 지출</label>
+                    <label><input type="radio" name="txType" value="INCOME"> 수입</label>
+                </div>
+                <select id="txCategory">${categoryOptions('EXPENSE')}</select>
+                <input id="txCategoryCustom" type="text" placeholder="카테고리 이름 입력" style="display:none;">
+                <input id="txAmount" type="text" inputmode="numeric" placeholder="금액" required>
+                <input id="txMemo" type="text" placeholder="메모 (선택)">
+                <label class="ledger-recurring-label" id="txRecurringLabel">
+                    <input type="checkbox" id="txRecurring"> 매달 반복 (월급/월세 등 고정 항목)
+                </label>
+                <label class="ledger-recurring-label">
+                    <input type="checkbox" id="txHidden"> 🙈 친구에게 숨기기
+                </label>
+                <div class="btn-row">
+                    <button type="submit" id="txSubmitBtn" class="btn btn-primary">추가</button>
+                    <button type="button" id="txCancelBtn" class="btn btn-ghost" style="display:none;">취소</button>
+                </div>
+            </form>`;
+    }
+
+    function eventFormHtml() {
+        const swatches = COLOR_TAGS.map((c, i) => `
+            <button type="button" class="ledger-color-swatch${i === 0 ? ' is-selected' : ''}" data-color="${c.key}" style="background:${c.hex}" title="${c.key}"></button>
+        `).join('');
+        return `
+            <form id="eventForm" class="form">
+                <input id="evtTitle" type="text" placeholder="일정 제목" required>
+                <div class="ledger-daterange">
+                    <input id="evtStartDate" type="date" required>
+                    <span class="ledger-daterange-sep">~</span>
+                    <input id="evtEndDate" type="date" required>
+                </div>
+                <input id="evtTime" type="time" placeholder="시간 (선택)">
+                <input id="evtMemo" type="text" placeholder="메모 (선택)">
+                <input type="hidden" id="evtColorTag" value="blue">
+                <div class="ledger-color-picker" id="evtColorPicker">${swatches}</div>
+                <label class="ledger-recurring-label">
+                    <input type="checkbox" id="evtHidden"> 🙈 친구에게 숨기기
+                </label>
+                <div class="btn-row">
+                    <button type="submit" id="evtSubmitBtn" class="btn btn-primary">추가</button>
+                    <button type="button" id="evtCancelBtn" class="btn btn-ghost" style="display:none;">취소</button>
+                </div>
+            </form>`;
+    }
+
+    return {
+        title: '가계부',
+
+        render() {
+            return `
+            <section class="ledger-page">
+                <div class="card">
+                    <div class="ledger-header">
+                        <div class="ledger-month-nav">
+                            <button id="prevMonth" class="ledger-nav-btn" type="button" aria-label="이전 달">◀</button>
+                            <h2 id="monthLabel">${state.year}년 ${state.month}월</h2>
+                            <button id="nextMonth" class="ledger-nav-btn" type="button" aria-label="다음 달">▶</button>
+                        </div>
+                        <div class="ledger-header-controls">
+                            <div class="ledger-switch" id="viewSwitch" style="${isSchedule() ? 'display:none;' : ''}">
+                                <button type="button" class="ledger-switch-btn${state.viewMode !== 'list' ? ' is-active' : ''}" data-view="calendar">${ICON_CALENDAR} 달력</button>
+                                <button type="button" class="ledger-switch-btn${state.viewMode === 'list' ? ' is-active' : ''}" data-view="list">${ICON_LIST} 목록</button>
+                            </div>
+                            <div class="ledger-switch" id="modeSwitch">
+                                <button type="button" class="ledger-switch-btn${!isSchedule() ? ' is-active' : ''}" data-mode="money">${ICON_WALLET} 가계부</button>
+                                <button type="button" class="ledger-switch-btn${isSchedule() ? ' is-active' : ''}" data-mode="schedule">${ICON_EVENT} 일정</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ledger-summary" id="monthSummary" style="${isSchedule() ? 'display:none;' : ''}"></div>
+                    <div class="${gridContainerClass()}" id="calendarGrid">${renderMainView()}</div>
+                </div>
+
+                <div class="card">
+                    <div class="ledger-day-header">
+                        <h3 id="dayPanelTitle">${state.selectedDate}</h3>
+                        <div class="ledger-day-totals" id="dayTotals">${isSchedule() ? '' : renderDayTotalsHtml(state.selectedDate)}</div>
+                    </div>
+                    <h4 class="ledger-section-label" id="daySectionLabel">${isSchedule() ? '등록된 일정' : '등록된 내역'}</h4>
+                    <div id="dayTxList">${isSchedule() ? renderEventDayList() : renderDayList()}</div>
+                    <div class="ledger-form-panel">
+                        <h4 class="ledger-section-label" id="formSectionLabel">${isSchedule() ? '일정 추가' : '내역 추가'}</h4>
+                        <div id="entryFormArea">${isSchedule() ? eventFormHtml() : moneyFormHtml()}</div>
+                    </div>
+                </div>
+            </section>`;
+        },
+
+        async onMounted() {
+            const $ = (id) => document.getElementById(id);
+
+            function renderMonthSummary() {
+                const { income, expense } = monthTotal();
+                $('monthSummary').innerHTML = `
+                    <div>이번 달 수입 <b class="is-income">${won(income)}</b></div>
+                    <div>이번 달 지출 <b class="is-expense">${won(expense)}</b></div>
+                `;
+            }
+
+            /* ---------------- 일정 캘린더 드래그 선택 ---------------- */
+
+            const dragState = { active: false, startDate: null, currentDate: null };
+
+            function cellAtPoint(clientX, clientY) {
+                const el = document.elementFromPoint(clientX, clientY);
+                const cell = el && el.closest && el.closest('.ledger-cell[data-date]');
+                return cell ? cell.dataset.date : null;
+            }
+
+            function applyDragHighlight() {
+                if (!dragState.startDate || !dragState.currentDate) return;
+                const lo = dragState.startDate < dragState.currentDate ? dragState.startDate : dragState.currentDate;
+                const hi = dragState.startDate < dragState.currentDate ? dragState.currentDate : dragState.startDate;
+                $('calendarGrid').querySelectorAll('.ledger-cell[data-date]').forEach(cell => {
+                    const d = cell.dataset.date;
+                    cell.classList.toggle('ledger-cell--drag', d >= lo && d <= hi);
+                });
+            }
+
+            function clearDragHighlight() {
+                $('calendarGrid').querySelectorAll('.ledger-cell--drag').forEach(cell => cell.classList.remove('ledger-cell--drag'));
+            }
+
+            function selectDateRange(lo, hi) {
+                state.selectedDate = lo;
+                resetEventForm();
+                $('evtEndDate').value = hi;
+                renderCalendar();
+                renderDayPanel();
+                $('evtTitle').focus();
+            }
+
+            function finalizeDrag() {
+                if (!dragState.active) return;
+                dragState.active = false;
+                if (!dragState.startDate) return;
+                const endDate = dragState.currentDate || dragState.startDate;
+                const lo = dragState.startDate < endDate ? dragState.startDate : endDate;
+                const hi = dragState.startDate < endDate ? endDate : dragState.startDate;
+                dragState.startDate = null;
+                dragState.currentDate = null;
+                clearDragHighlight();
+                selectDateRange(lo, hi);
+            }
+
+            $('calendarGrid').addEventListener('pointermove', (e) => {
+                if (!dragState.active) return;
+                const d = cellAtPoint(e.clientX, e.clientY);
+                if (d && d !== dragState.currentDate) {
+                    dragState.currentDate = d;
+                    applyDragHighlight();
+                }
+            });
+
+            document.addEventListener('pointerup', () => finalizeDrag());
+            document.addEventListener('pointercancel', () => finalizeDrag());
+
+            function renderCalendar() {
+                const container = $('calendarGrid');
+                container.className = gridContainerClass();
+                container.innerHTML = renderMainView();
+
+                if (isSchedule()) {
+                    container.querySelectorAll('.ledger-cell[data-date]').forEach(cell => {
+                        cell.addEventListener('pointerdown', (e) => {
+                            e.preventDefault();
+                            dragState.active = true;
+                            dragState.startDate = cell.dataset.date;
+                            dragState.currentDate = cell.dataset.date;
+                            applyDragHighlight();
+                        });
+                    });
+                } else {
+                    container.querySelectorAll('[data-date]').forEach(el => {
+                        el.addEventListener('click', () => selectDate(el.dataset.date));
+                    });
+                }
+            }
+
+            function renderDayPanel() {
+                $('dayPanelTitle').textContent = state.selectedDate;
+                $('daySectionLabel').textContent = isSchedule() ? '등록된 일정' : '등록된 내역';
+
+                if (isSchedule()) {
+                    $('dayTotals').innerHTML = '';
+                    $('dayTxList').innerHTML = renderEventDayList();
+                    $('dayTxList').querySelectorAll('button[data-del-event]').forEach(btn => {
+                        btn.onclick = async () => {
+                            await axios.delete(`/api/schedule/${btn.dataset.delEvent}`);
+                            if (state.editingEventId === Number(btn.dataset.delEvent)) resetEventForm();
+                            await refresh();
+                        };
+                    });
+                    $('dayTxList').querySelectorAll('button[data-edit-event]').forEach(btn => {
+                        btn.onclick = () => startEditEvent(Number(btn.dataset.editEvent));
+                    });
+                    return;
+                }
+
+                $('dayTotals').innerHTML = renderDayTotalsHtml(state.selectedDate);
+                $('dayTxList').innerHTML = renderDayList();
+                $('dayTxList').querySelectorAll('button[data-del]').forEach(btn => {
+                    btn.onclick = async () => {
+                        await axios.delete(`/api/money/ledger/${btn.dataset.del}`);
+                        if (state.editingId === Number(btn.dataset.del)) resetForm();
+                        await refresh();
+                    };
+                });
+                $('dayTxList').querySelectorAll('button[data-edit]').forEach(btn => {
+                    btn.onclick = () => startEdit(Number(btn.dataset.edit));
+                });
+                $('dayTxList').querySelectorAll('button[data-stop]').forEach(btn => {
+                    btn.onclick = async () => {
+                        if (!confirm('이 항목의 반복을 중지할까요? 이미 생성된 지난 내역은 그대로 유지됩니다.')) return;
+                        const tx = (state.byDate[state.selectedDate] || []).find(t => t.id === Number(btn.dataset.stop));
+                        if (!tx) return;
+                        await axios.put(`/api/money/ledger/${tx.id}`, {
+                            date: tx.date, type: tx.type, category: tx.category,
+                            amount: tx.amount, memo: tx.memo, recurring: false
+                        });
+                        if (state.editingId === tx.id) resetForm();
+                        await refresh();
+                    };
+                });
+            }
+
+            function selectDate(dateStr) {
+                state.selectedDate = dateStr;
+                if (isSchedule()) resetEventForm(); else resetForm();
+                renderCalendar();
+                renderDayPanel();
+            }
+
+            /* ---------------- 가계부 폼 ---------------- */
+
+            function resetForm() {
+                state.editingId = null;
+                state.editingOriginalRecurring = false;
+                $('txForm').reset();
+                $('txCategory').innerHTML = categoryOptions('EXPENSE');
+                $('txCategoryCustom').style.display = 'none';
+                $('txCategoryCustom').value = '';
+                $('txAmount').value = '';
+                $('txSubmitBtn').textContent = '추가';
+                $('txCancelBtn').style.display = 'none';
+                $('txRecurringLabel').style.display = '';
+                $('txRecurring').checked = false;
+            }
+
+            function startEdit(id) {
+                const tx = (state.byDate[state.selectedDate] || []).find(t => t.id === id);
+                if (!tx) return;
+
+                state.editingId = id;
+                state.editingOriginalRecurring = !!tx.recurring;
+
+                document.querySelector(`input[name="txType"][value="${tx.type}"]`).checked = true;
+                $('txCategory').innerHTML = categoryOptions(tx.type);
+
+                const knownCategory = categoriesForType(tx.type).includes(tx.category);
+                if (knownCategory) {
+                    $('txCategory').value = tx.category;
+                    $('txCategoryCustom').style.display = 'none';
+                    $('txCategoryCustom').value = '';
+                } else {
+                    $('txCategory').value = '__custom__';
+                    $('txCategoryCustom').style.display = '';
+                    $('txCategoryCustom').value = tx.category;
+                }
+
+                $('txAmount').value = Number(tx.amount).toLocaleString('ko-KR');
+                $('txMemo').value = tx.memo || '';
+                $('txHidden').checked = !!tx.hidden;
+
+                $('txSubmitBtn').textContent = '수정 완료';
+                $('txCancelBtn').style.display = '';
+                $('txRecurringLabel').style.display = 'none';
+                $('txAmount').focus();
+            }
+
+            function bindMoneyForm() {
+                $('txCategory').addEventListener('change', () => {
+                    const isCustom = $('txCategory').value === '__custom__';
+                    $('txCategoryCustom').style.display = isCustom ? '' : 'none';
+                    if (isCustom) $('txCategoryCustom').focus();
+                });
+
+                document.querySelectorAll('input[name="txType"]').forEach(radio => {
+                    radio.addEventListener('change', () => {
+                        const type = document.querySelector('input[name="txType"]:checked').value;
+                        $('txCategory').innerHTML = categoryOptions(type);
+                        $('txCategoryCustom').style.display = 'none';
+                        $('txCategoryCustom').value = '';
+                    });
+                });
+
+                $('txAmount').addEventListener('input', () => formatAmountInput($('txAmount')));
+                $('txCancelBtn').addEventListener('click', () => resetForm());
+
+                $('txForm').addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const type = document.querySelector('input[name="txType"]:checked').value;
+                    const isCustom = $('txCategory').value === '__custom__';
+                    const category = isCustom ? $('txCategoryCustom').value.trim() : $('txCategory').value;
+                    const amount = parseAmountInput($('txAmount'));
+                    const memo = $('txMemo').value.trim() || null;
+
+                    if (!amount || amount <= 0) return;
+                    if (isCustom && !category) {
+                        $('txCategoryCustom').focus();
+                        return;
+                    }
+
+                    const recurring = state.editingId ? state.editingOriginalRecurring : $('txRecurring').checked;
+                    const hidden = $('txHidden').checked;
+                    const payload = { date: state.selectedDate, type, category, amount, memo, recurring, hidden };
+
+                    if (state.editingId) {
+                        await axios.put(`/api/money/ledger/${state.editingId}`, payload);
+                    } else {
+                        await axios.post('/api/money/ledger', payload);
+                    }
+
+                    resetForm();
+                    await refresh();
+                });
+            }
+
+            /* ---------------- 일정 폼 ---------------- */
+
+            function updateColorSwatchSelection(colorKey) {
+                $('evtColorPicker').querySelectorAll('.ledger-color-swatch').forEach(sw => {
+                    sw.classList.toggle('is-selected', sw.dataset.color === colorKey);
+                });
+            }
+
+            function resetEventForm() {
+                state.editingEventId = null;
+                $('eventForm').reset();
+                $('evtStartDate').value = state.selectedDate;
+                $('evtEndDate').value = state.selectedDate;
+                $('evtColorTag').value = 'blue';
+                updateColorSwatchSelection('blue');
+                $('evtSubmitBtn').textContent = '추가';
+                $('evtCancelBtn').style.display = 'none';
+            }
+
+            function startEditEvent(id) {
+                const ev = (state.eventsByDate[state.selectedDate] || []).find(e => e.id === id);
+                if (!ev) return;
+
+                state.editingEventId = id;
+                $('evtTitle').value = ev.title;
+                $('evtStartDate').value = ev.startDate;
+                $('evtEndDate').value = ev.endDate;
+                $('evtTime').value = ev.time ? ev.time.slice(0, 5) : '';
+                $('evtMemo').value = ev.memo || '';
+                $('evtColorTag').value = ev.colorTag || 'blue';
+                updateColorSwatchSelection(ev.colorTag || 'blue');
+                $('evtHidden').checked = !!ev.hidden;
+
+                $('evtSubmitBtn').textContent = '수정 완료';
+                $('evtCancelBtn').style.display = '';
+                $('evtTitle').focus();
+            }
+
+            function bindEventForm() {
+                $('evtColorPicker').querySelectorAll('.ledger-color-swatch').forEach(sw => {
+                    sw.addEventListener('click', () => {
+                        $('evtColorTag').value = sw.dataset.color;
+                        updateColorSwatchSelection(sw.dataset.color);
+                    });
+                });
+
+                $('evtCancelBtn').addEventListener('click', () => resetEventForm());
+
+                $('eventForm').addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const title = $('evtTitle').value.trim();
+                    if (!title) {
+                        $('evtTitle').focus();
+                        return;
+                    }
+                    const startDate = $('evtStartDate').value;
+                    const endDate = $('evtEndDate').value;
+                    if (!startDate || !endDate) return;
+                    if (endDate < startDate) {
+                        alert('종료일은 시작일보다 빠를 수 없습니다.');
+                        $('evtEndDate').focus();
+                        return;
+                    }
+                    const time = $('evtTime').value || null;
+                    const memo = $('evtMemo').value.trim() || null;
+                    const colorTag = $('evtColorTag').value || 'blue';
+                    const hidden = $('evtHidden').checked;
+                    const payload = { startDate, endDate, time, title, memo, colorTag, hidden };
+
+                    if (state.editingEventId) {
+                        await axios.put(`/api/schedule/${state.editingEventId}`, payload);
+                    } else {
+                        await axios.post('/api/schedule', payload);
+                    }
+
+                    resetEventForm();
+                    await refresh();
+                });
+            }
+
+            function renderFormArea() {
+                $('formSectionLabel').textContent = isSchedule() ? '일정 추가' : '내역 추가';
+                $('entryFormArea').innerHTML = isSchedule() ? eventFormHtml() : moneyFormHtml();
+                if (isSchedule()) {
+                    bindEventForm();
+                    resetEventForm();
+                } else {
+                    bindMoneyForm();
+                    resetForm();
+                }
+            }
+
+            async function refresh() {
+                await Promise.all([loadMonth(), loadEvents()]);
+                renderMonthSummary();
+                renderCalendar();
+                renderDayPanel();
+            }
+
+            $('prevMonth').addEventListener('click', async () => {
+                state.month--;
+                if (state.month < 1) { state.month = 12; state.year--; }
+                $('monthLabel').textContent = `${state.year}년 ${state.month}월`;
+                await refresh();
+            });
+
+            $('nextMonth').addEventListener('click', async () => {
+                state.month++;
+                if (state.month > 12) { state.month = 1; state.year++; }
+                $('monthLabel').textContent = `${state.year}년 ${state.month}월`;
+                await refresh();
+            });
+
+            function updateSwitchActive(groupId, attr, value) {
+                $(groupId).querySelectorAll('.ledger-switch-btn').forEach(btn => {
+                    btn.classList.toggle('is-active', btn.dataset[attr] === value);
+                });
+            }
+
+            $('viewSwitch').querySelectorAll('button[data-view]').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const next = btn.dataset.view === 'list' ? 'list' : 'calendar';
+                    if (state.viewMode === next) return;
+                    state.viewMode = next;
+                    localStorage.setItem(VIEW_MODE_KEY, state.viewMode);
+                    updateSwitchActive('viewSwitch', 'view', next);
+                    renderCalendar();
+                });
+            });
+
+            $('modeSwitch').querySelectorAll('button[data-mode]').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const next = btn.dataset.mode === 'schedule' ? 'schedule' : 'money';
+                    if (state.mode === next) return;
+                    state.mode = next;
+                    localStorage.setItem(MODE_KEY, state.mode);
+                    updateSwitchActive('modeSwitch', 'mode', next);
+                    $('viewSwitch').style.display = isSchedule() ? 'none' : '';
+                    $('monthSummary').style.display = isSchedule() ? 'none' : '';
+                    renderCalendar();
+                    renderFormArea();
+                    renderDayPanel();
+                });
+            });
+
+            if (isSchedule()) {
+                bindEventForm();
+                resetEventForm();
+            } else {
+                bindMoneyForm();
+            }
+
+            await refresh();
+        }
+    };
+}

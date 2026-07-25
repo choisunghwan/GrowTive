@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.growtive.money.mapper.DailyTransactionMapper">
+
+    <resultMap id="DailyTransactionMap" type="com.growtive.money.dto.DailyTransactionDto">
+        <id     column="id"                  property="id"/>
+        <result column="transaction_date"    property="date"/>
+        <result column="type"                property="type"/>
+        <result column="category"            property="category"/>
+        <result column="amount"              property="amount"/>
+        <result column="memo"                property="memo"/>
+        <result column="is_recurring"        property="recurring"/>
+        <result column="recurring_origin_id" property="recurringOriginId"/>
+        <result column="is_hidden"           property="hidden"/>
+    </resultMap>
+
+    <select id="findByMonth" resultMap="DailyTransactionMap">
+        SELECT id, transaction_date, type, category, amount, memo, is_recurring, recurring_origin_id, is_hidden
+        FROM daily_transaction
+        WHERE user_id = #{userId}
+          AND YEAR(transaction_date) = #{year}
+          AND MONTH(transaction_date) = #{month}
+        ORDER BY transaction_date, id
+    </select>
+
+    <select id="findById" resultMap="DailyTransactionMap">
+        SELECT id, transaction_date, type, category, amount, memo, is_recurring, recurring_origin_id, is_hidden
+        FROM daily_transaction
+        WHERE id = #{id} AND user_id = #{userId}
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="dto.id">
+        INSERT INTO daily_transaction (user_id, transaction_date, type, category, amount, memo, is_recurring, recurring_origin_id, is_hidden)
+        VALUES (#{userId}, #{dto.date}, #{dto.type}, #{dto.category}, #{dto.amount}, #{dto.memo}, #{dto.recurring}, #{dto.recurringOriginId}, #{dto.hidden})
+    </insert>
+
+    <update id="update">
+        UPDATE daily_transaction
+        SET transaction_date = #{dto.date},
+            type = #{dto.type},
+            category = #{dto.category},
+            amount = #{dto.amount},
+            memo = #{dto.memo},
+            is_recurring = #{dto.recurring},
+            is_hidden = #{dto.hidden}
+        WHERE id = #{id} AND user_id = #{userId}
+    </update>
+
+    <delete id="delete">
+        DELETE FROM daily_transaction WHERE id = #{id} AND user_id = #{userId}
+    </delete>
+
+    <select id="sumByType" resultType="java.lang.Long">
+        SELECT COALESCE(SUM(amount), 0)
+        FROM daily_transaction
+        WHERE user_id = #{userId}
+          AND YEAR(transaction_date) = #{year}
+          AND MONTH(transaction_date) = #{month}
+          AND type = #{type}
+    </select>
+
+    <select id="sumByCategory" resultType="com.growtive.money.dto.CategoryAmountDto">
+        SELECT category, COALESCE(SUM(amount), 0) AS total
+        FROM daily_transaction
+        WHERE user_id = #{userId}
+          AND YEAR(transaction_date) = #{year}
+          AND MONTH(transaction_date) = #{month}
+          AND type = #{type}
+        GROUP BY category
+    </select>
+
+    <select id="findActiveRecurringOrigins" resultMap="DailyTransactionMap">
+        SELECT id, transaction_date, type, category, amount, memo, is_recurring, recurring_origin_id
+        FROM daily_transaction
+        WHERE user_id = #{userId}
+          AND is_recurring = TRUE
+          AND recurring_origin_id IS NULL
+          AND transaction_date &lt;= #{onOrBefore}
+    </select>
+
+    <select id="countOccurrenceForOriginInMonth" resultType="int">
+        SELECT COUNT(*)
+        FROM daily_transaction
+        WHERE recurring_origin_id = #{originId}
+          AND YEAR(transaction_date) = #{year}
+          AND MONTH(transaction_date) = #{month}
+    </select>
+
+    <!-- 친구 캘린더 비교용: 숨긴 항목 제외, sinceDate~untilDate 범위 내만 -->
+    <select id="findVisibleByMonth" resultMap="DailyTransactionMap">
+        SELECT id, transaction_date, type, category, amount, memo, is_recurring, recurring_origin_id, is_hidden
+        FROM daily_transaction
+        WHERE user_id = #{userId}
+          AND YEAR(transaction_date) = #{year}
+          AND MONTH(transaction_date) = #{month}
+          AND is_hidden = FALSE
+          <if test="sinceDate != null">
+              AND transaction_date &gt;= #{sinceDate}
+          </if>
+          <if test="untilDate != null">
+              AND transaction_date &lt;= #{untilDate}
+          </if>
+        ORDER BY transaction_date, id
+    </select>
+
+</mapper>

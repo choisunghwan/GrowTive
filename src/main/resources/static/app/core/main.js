@@ -26,18 +26,14 @@ setupAxios();
 function highlightActive() {
     const hash = location.hash || '#/dashboard';
 
+    // 🔐 로그인/회원가입 화면에서는 topbar/sidebar를 숨기고 폼만 보여준다
+    const isAuthPage = hash.startsWith('#/login') || hash.startsWith('#/register');
+    document.body.classList.toggle('auth-view', isAuthPage);
+
     // sidebar
     document.querySelectorAll('#sidebar a').forEach(a => {
         const route = a.getAttribute('href');
-
-        // 상세 페이지(#/stocks/detail?id=1)도 목록 메뉴 활성 처리
-        const isDetail =
-            hash.startsWith('#/stocks/detail') && route === '#/stocks';
-
-        a.classList.toggle(
-            'active',
-            route === hash || isDetail
-        );
+        a.classList.toggle('active', route === hash);
     });
 }
 
@@ -66,24 +62,6 @@ async function boot() {
     // 첫 페이지 렌더링
     navigate();
 }
-
-/**
- * 📂 사이드바 토글 버튼 이벤트
- */
-document.addEventListener('DOMContentLoaded', () => {
-    const sidebar = document.getElementById('sidebar');
-    const toggleBtn = document.getElementById('sidebar-toggle');
-
-    if (toggleBtn && sidebar) {
-        toggleBtn.addEventListener('click', () => {
-            sidebar.classList.toggle('collapsed');
-
-            toggleBtn.textContent = sidebar.classList.contains('collapsed')
-                ? '📁'
-                : '📂';
-        });
-    }
-});
 
 /**
  * 해시 변경 시 페이지 전환
