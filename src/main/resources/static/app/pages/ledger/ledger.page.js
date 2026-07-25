@@ -583,7 +583,6 @@ export default function LedgerPage() {
                 $('evtEndDate').value = hi;
                 renderCalendar();
                 renderDayPanel();
-                $('evtTitle').focus();
             }
 
             function finalizeDrag() {

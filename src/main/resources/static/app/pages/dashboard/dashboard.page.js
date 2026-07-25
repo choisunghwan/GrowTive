@@ -222,6 +222,8 @@ export default function DashboardPage() {
             const isDark = document.documentElement.classList.contains("dark");
             const labelColor = isDark ? "#e5e9f2" : "#1e2530";
             const fontStack = "'Pretendard Variable', Pretendard, -apple-system, 'Segoe UI', Roboto, 'Noto Sans KR', 'Malgun Gothic', sans-serif";
+            const isMobile = window.innerWidth <= 480;
+            const sankeyFontSize = isMobile ? 9 : 12;
 
             window.__sankeyChart = new Chart(canvas, {
                 type: "sankey",
@@ -233,9 +235,9 @@ export default function DashboardPage() {
                         colorTo: c => this.colorForNode(c.raw.to, flow),
                         colorMode: "gradient",
                         borderWidth: 0,
-                        nodeWidth: 14,
+                        nodeWidth: isMobile ? 8 : 14,
                         color: labelColor,
-                        font: { family: fontStack, size: 12, weight: "600" }
+                        font: { family: fontStack, size: sankeyFontSize, weight: "600" }
                     }]
                 },
                 options: {
