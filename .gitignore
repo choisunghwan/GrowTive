@@ -11,9 +11,11 @@ application-prod.properties
 application-test.properties
 application-local.properties
 
-# 그 외 로컬 전용 properties는 무시하되, 환경변수만 참조하는 기본 설정(application.properties)은 커밋함
+# 그 외 로컬 전용 properties는 무시하되, 환경변수만 참조하는 기본 설정(application.properties)과
+# Gradle Wrapper 설정(gradle-wrapper.properties, 빌드에 필수)은 커밋함
 *.properties
 !application.properties
+!gradle-wrapper.properties
 
 # user uploads (파일 업로드)
 /src/main/resources/uploads/
