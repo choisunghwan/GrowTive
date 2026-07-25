@@ -18,6 +18,9 @@ import FriendsPage from '../pages/friends/friends.page.js';
 /*친구 캘린더 비교*/
 import ComparePage from '../pages/compare/compare.page.js';
 
+/*서비스 소개*/
+import AboutPage from '../pages/about/about.page.js';
+
 const routes = {
     /*홈 = 가계부*/
     '#/': LedgerPage,
@@ -31,6 +34,8 @@ const routes = {
     /*친구*/
     '#/friends': FriendsPage,
     '#/compare': ComparePage,
+    /*서비스 소개 - 로그인 없이도 볼 수 있음*/
+    '#/about': AboutPage,
 };
 
 /**

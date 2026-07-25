@@ -64,11 +64,16 @@ export default function LoginPage() {
                         계정 아이디와 비밀번호를 입력하세요
                     </p>
                     
-                    <!-- 회원가입 이동 --> 
-                    <p class="login-desc"> 계정이 없으신가요? 
-                        <a href="#/register">회원가입</a> 
+                    <!-- 회원가입 이동 -->
+                    <p class="login-desc"> 계정이 없으신가요?
+                        <a href="#/register">회원가입</a>
                     </p>
-                    
+
+                    <!-- 서비스 소개 -->
+                    <p class="login-desc">
+                        <a href="#/about">GROWTIVE가 궁금하신가요? 서비스 소개 보기</a>
+                    </p>
+
                 </div>
             `;
         },

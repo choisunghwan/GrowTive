@@ -178,3 +178,71 @@ html.dark .admin-role-badge { background: rgba(167, 139, 250, .18); color: #c4b5
         white-space: normal;
     }
 }
+
+/* =========================
+   ℹ️ 서비스 소개 페이지
+   ========================= */
+.about-page {
+    display: grid;
+    gap: 20px;
+    max-width: 720px;
+    margin: 0 auto;
+}
+
+.about-hero {
+    text-align: center;
+}
+.about-hero-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 14px;
+    margin-bottom: 12px;
+}
+.about-hero .title { margin-bottom: 8px; }
+.about-hero .subtitle { max-width: 480px; margin: 0 auto; }
+
+.about-feature {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    align-items: center;
+}
+.about-feature-text h3 {
+    margin: 0 0 8px;
+    font-size: 20px;
+}
+.about-feature-text p {
+    margin: 0;
+    color: var(--text-muted);
+    line-height: 1.6;
+}
+.about-feature-img {
+    width: 100%;
+    max-width: 280px;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-md);
+    display: block;
+}
+
+@media (min-width: 640px) {
+    .about-feature {
+        flex-direction: row;
+        align-items: flex-start;
+        text-align: left;
+    }
+    .about-feature-text {
+        flex: 1;
+        padding-top: 8px;
+    }
+    .about-feature-img {
+        flex-shrink: 0;
+        width: 220px;
+    }
+}
+
+.about-cta {
+    text-align: center;
+}
+.about-cta h3 { margin: 0 0 6px; }
+.about-cta .subtitle { margin-bottom: 16px; }
