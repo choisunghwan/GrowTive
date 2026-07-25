@@ -14,7 +14,7 @@ export default function DashboardPage() {
         <section class="dashboard">
 
           <div class="card">
-            <h1 class="title">GrowTive</h1>
+            <h1 class="title">돈 흐름</h1>
             <p class="subtitle">이번 달 돈이 어디로 흘러가는지 확인하세요</p>
 
             <div style="display:flex; align-items:center; gap:10px; margin-top:16px; flex-wrap:wrap;">
