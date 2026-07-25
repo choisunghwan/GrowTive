@@ -1,0 +1,23 @@
+name: Keep Aiven DB Alive
+
+# Aiven 무료 MySQL은 일정 기간 접속이 없으면 자동으로 정지되므로,
+# 며칠에 한 번씩 가벼운 쿼리를 날려 활성 상태를 유지한다.
+on:
+  schedule:
+    - cron: '0 3 */3 * *'  # 3일마다 UTC 03:00 (KST 정오)
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Aiven MySQL
+        run: |
+          sudo apt-get update -y && sudo apt-get install -y mysql-client
+          mysql --ssl-mode=REQUIRED \
+            -h "${{ secrets.AIVEN_DB_HOST }}" \
+            -P "${{ secrets.AIVEN_DB_PORT }}" \
+            -u "${{ secrets.AIVEN_DB_USER }}" \
+            -p"${{ secrets.AIVEN_DB_PASSWORD }}" \
+            "${{ secrets.AIVEN_DB_NAME }}" \
+            -e "SELECT 1;"
