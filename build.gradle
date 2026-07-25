@@ -36,9 +36,11 @@ dependencies {
 	implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.3'
 	implementation 'org.springframework.boot:spring-boot-starter-jdbc'
 
-	// === DB 드라이버: MariaDB 사용 ===
-	// runtimeOnly 'com.mysql:mysql-connector-j'     // ❌ 제거
-	runtimeOnly 'org.mariadb.jdbc:mariadb-java-client:3.4.1' // ✅ 추가
+	// === DB 드라이버 ===
+	// 로컬 개발(MariaDB)용
+	runtimeOnly 'org.mariadb.jdbc:mariadb-java-client:3.4.1'
+	// 운영(Aiven MySQL, sha256_password 인증) 용 - mariadb-java-client가 sha256_password를 지원하지 않아 필요
+	runtimeOnly 'com.mysql:mysql-connector-j'
 
 	// --- (선택) 운영 관측
 	implementation 'org.springframework.boot:spring-boot-starter-actuator'
