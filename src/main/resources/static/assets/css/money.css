@@ -123,6 +123,27 @@ html.dark .money-stat--remain { --stat-accent: #2dd4bf; }
     margin: 0 auto;
 }
 
+@media (max-width: 768px) {
+    .ledger-page {
+        gap: 10px;
+        padding: 10px;
+    }
+    .ledger-page .card {
+        padding: 12px;
+    }
+    .ledger-header {
+        gap: 8px;
+        margin-bottom: 10px;
+    }
+    .ledger-header h2 {
+        font-size: 16px;
+        min-width: auto;
+    }
+    .ledger-summary {
+        margin-bottom: 12px;
+    }
+}
+
 .ledger-header {
     display: flex;
     align-items: center;

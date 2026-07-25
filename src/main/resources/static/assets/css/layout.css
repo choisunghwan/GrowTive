@@ -12,6 +12,23 @@
     box-shadow: var(--shadow-sm);
 }
 
+.sidebar-toggle-btn {
+    display: none;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-size: 20px;
+    line-height: 1;
+    padding: 6px 8px;
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    flex-shrink: 0;
+}
+
+.sidebar-toggle-btn:hover {
+    background: var(--bg);
+}
+
 .topbar .brand {
     font-weight: 800;
     font-size: 17px;
@@ -272,6 +289,10 @@ body.auth-view .content {
         display: none; /* 모바일에서는 이름 숨기고 로그아웃 버튼만 */
     }
 
+    .sidebar-toggle-btn {
+        display: block; /* 모바일에서만 햄버거 버튼 노출 */
+    }
+
     /* =====================
        Layout
        ===================== */
@@ -282,20 +303,42 @@ body.auth-view .content {
 
     /* =====================
        Sidebar (모바일 전용)
-       - 토글 버튼 없이 콘텐츠 위에 항상 노출
+       - 기본은 접혀있고, 햄버거 버튼으로 열면 topbar 아래
+         드롭다운 형태로 뜬다 (콘텐츠를 밀어내지 않음)
        ===================== */
     .sidebar {
+        display: none;
+        position: fixed;
+        top: 60px;
+        left: 0;
+        right: 0;
+        max-height: calc(100vh - 60px);
+        overflow-y: auto;
         width: 100%;
-        padding: 12px 14px;
+        padding: 10px 14px;
         border-right: none;
         border-bottom: 1px solid var(--border);
+        box-shadow: var(--shadow-md);
+        z-index: 15;
+    }
+
+    .sidebar.is-open {
+        display: block;
+    }
+
+    .sidebar .menu-title {
+        margin: 10px 4px 4px;
+    }
+
+    .sidebar .menu-title:first-child {
+        margin-top: 2px;
     }
 
     /* =====================
        Content
        ===================== */
     .content {
-        padding: 16px;
+        padding: 12px;
     }
 
     /* =====================

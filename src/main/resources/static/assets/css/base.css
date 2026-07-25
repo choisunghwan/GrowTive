@@ -136,6 +136,12 @@ a {
     transition: background .2s ease, border-color .2s ease;
 }
 
+@media (max-width: 768px) {
+    .card {
+        padding: 14px;
+    }
+}
+
 /* =============================
    🌙 Global Dark Mode (기본 토닝)
    html에 .dark 클래스가 붙었을 때 적용
