@@ -41,9 +41,9 @@ export default function AboutPage() {
           <div class="card about-feature">
             <div class="about-feature-text">
               <h3>👫 소셜 (친구 캘린더 비교)</h3>
-              <p>가족, 친구, 연인과 아이디로 서로 연결하고 캘린더를 비교해보세요. 단, 양쪽이 각자 공유 기간을 지정해야만 비교가 가능해서 사생활은 안전하게 지켜집니다. 항목별로 숨기기도 가능합니다.</p>
+              <p>가족, 친구, 연인과 아이디로 서로 연결하고 캘린더를 나란히 놓고 비교해보세요. 단, 양쪽이 각자 공유 기간을 지정해야만 비교가 가능해서 사생활은 안전하게 지켜집니다. 항목별로 숨기기도 가능합니다.</p>
             </div>
-            <img src="/assets/img/intro/intro-friends.png" alt="친구 화면" class="about-feature-img">
+            <img src="/assets/img/intro/intro-compare.png" alt="친구 캘린더 비교 화면" class="about-feature-img about-feature-img--wide">
           </div>
 
           <div class="card about-cta" id="aboutCta">

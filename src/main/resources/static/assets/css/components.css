@@ -225,6 +225,10 @@ html.dark .admin-role-badge { background: rgba(167, 139, 250, .18); color: #c4b5
     display: block;
 }
 
+.about-feature-img--wide {
+    max-width: 100%;
+}
+
 @media (min-width: 640px) {
     .about-feature {
         flex-direction: row;
@@ -238,6 +242,9 @@ html.dark .admin-role-badge { background: rgba(167, 139, 250, .18); color: #c4b5
     .about-feature-img {
         flex-shrink: 0;
         width: 220px;
+    }
+    .about-feature-img--wide {
+        width: 420px;
     }
 }
 
