@@ -123,6 +123,10 @@ html.dark .topbar-salary-dot.is-working {
     color: var(--text);
 }
 
+.sidebar-logout-item {
+    display: none; /* 데스크톱은 상단바 로그아웃 버튼 사용, 사이드바엔 안 보임 */
+}
+
 .topbar-logout {
     height: 32px;
     padding: 0 12px;
@@ -131,6 +135,8 @@ html.dark .topbar-salary-dot.is-working {
     background: var(--bg-elevated);
     color: var(--text-muted);
     font-size: 13px;
+    white-space: nowrap;
+    flex-shrink: 0;
     cursor: pointer;
     transition: background .15s ease, color .15s ease;
 }
@@ -349,7 +355,15 @@ body.auth-view .content {
     }
 
     .topbar-username {
-        display: none; /* 모바일에서는 이름 숨기고 로그아웃 버튼만 */
+        display: none; /* 모바일에서는 이름 숨김 */
+    }
+
+    .topbar-logout {
+        display: none; /* 모바일에서는 로그아웃을 사이드바 메뉴로 이동 */
+    }
+
+    .sidebar-logout-item {
+        display: list-item; /* 모바일에서만 사이드바에 로그아웃 노출 */
     }
 
     .sidebar-toggle-btn {
