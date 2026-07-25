@@ -11,12 +11,13 @@ export default function FriendsPage() {
             <section class="friend-page">
                 <div class="card">
                     <h1 class="title">친구</h1>
-                    <p class="subtitle">아이디로 친구를 추가하고, 서로 캘린더를 비교해보세요.</p>
+                    <p class="subtitle">아이디 또는 이름으로 친구를 검색해서 추가해보세요.</p>
                     <form id="addFriendForm" class="form" style="margin-top:16px; max-width:420px;">
-                        <input id="friendUsername" type="text" placeholder="추가할 사용자 아이디" required>
-                        <button type="submit" class="btn btn-primary">친구 요청 보내기</button>
+                        <input id="friendUsername" type="text" placeholder="아이디 또는 이름으로 검색" required>
+                        <button type="submit" class="btn btn-primary">검색</button>
                     </form>
                     <div id="friendStatus" style="margin-top:8px; font-size:13px; color:var(--text-muted);"></div>
+                    <div id="searchResults" style="margin-top:12px;"></div>
                 </div>
 
                 <div class="card" style="margin-top:20px;">
@@ -197,21 +198,51 @@ export default function FriendsPage() {
                 renderFriends(friends.data);
             }
 
+            function renderSearchResults(list) {
+                if (list.length === 0) {
+                    $('searchResults').innerHTML = emptyHint('일치하는 사용자가 없습니다.');
+                    return;
+                }
+                $('searchResults').innerHTML = list.map(u => `
+                    <div class="friend-item" data-search-id="${u.id}">
+                        <span><b>${u.displayName}</b> <span class="hint">(${u.username})</span></span>
+                        <button class="btn btn-xs btn-primary" data-send="${u.username}">친구 요청 보내기</button>
+                    </div>
+                `).join('');
+
+                $('searchResults').querySelectorAll('button[data-send]').forEach(btn => {
+                    btn.onclick = async () => {
+                        const username = btn.dataset.send;
+                        const statusEl = $('friendStatus');
+                        try {
+                            statusEl.textContent = '요청 보내는 중...';
+                            await axios.post('/api/friends/requests', { username });
+                            statusEl.textContent = `"${username}"님에게 친구 요청을 보냈습니다.`;
+                            $('searchResults').innerHTML = '';
+                            $('friendUsername').value = '';
+                            await refresh();
+                        } catch (e) {
+                            statusEl.textContent = '';
+                            alert(e.response?.data?.message || '친구 요청에 실패했습니다.');
+                        }
+                    };
+                });
+            }
+
             $('addFriendForm').addEventListener('submit', async (e) => {
                 e.preventDefault();
-                const username = $('friendUsername').value.trim();
-                if (!username) return;
+                const query = $('friendUsername').value.trim();
+                if (!query) return;
 
                 const statusEl = $('friendStatus');
                 try {
-                    statusEl.textContent = '요청 보내는 중...';
-                    await axios.post('/api/friends/requests', { username });
-                    $('friendUsername').value = '';
-                    statusEl.textContent = `"${username}"님에게 친구 요청을 보냈습니다.`;
-                    await refresh();
+                    statusEl.textContent = '검색 중...';
+                    const res = await axios.get('/api/friends/search', { params: { q: query } });
+                    statusEl.textContent = '';
+                    renderSearchResults(res.data);
                 } catch (e) {
                     statusEl.textContent = '';
-                    alert(e.response?.data?.message || '친구 요청에 실패했습니다.');
+                    alert(e.response?.data?.message || '검색에 실패했습니다.');
                 }
             });
 

@@ -30,6 +30,11 @@ public class FriendController {
         return service.createRequest(getUserId(session), request.getUsername());
     }
 
+    @GetMapping("/search")
+    public List<com.growtive.friend.mapper.UserBasic> search(@RequestParam("q") String query, HttpSession session) {
+        return service.searchUsers(getUserId(session), query);
+    }
+
     @GetMapping("/requests/incoming")
     public List<FriendConnectionDto> incoming(HttpSession session) {
         return service.getIncoming(getUserId(session));

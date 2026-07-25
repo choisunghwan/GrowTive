@@ -38,17 +38,25 @@ button { padding: 8px 12px; border: 0; border-radius: var(--radius-sm); cursor: 
 }
 html.dark .friend-unfriend-btn:hover { color: #fca5a5; background: rgba(220,38,38,.15); border-color: rgba(220,38,38,.3); }
 
-.admin-role-badge {
+.admin-role-badge,
+.user-role-badge {
     display: inline-block;
     padding: 2px 8px;
     border-radius: 999px;
-    background: rgba(124, 58, 237, .12);
-    color: #7c3aed;
     font-size: 11px;
     font-weight: 800;
     letter-spacing: .03em;
 }
+.admin-role-badge {
+    background: rgba(124, 58, 237, .12);
+    color: #7c3aed;
+}
+.user-role-badge {
+    background: rgba(100, 116, 139, .12);
+    color: #64748b;
+}
 html.dark .admin-role-badge { background: rgba(167, 139, 250, .18); color: #c4b5fd; }
+html.dark .user-role-badge { background: rgba(148, 163, 184, .18); color: #cbd5e1; }
 
 /* === Table (정렬/간격 고정) === */
 .tbl {
@@ -198,8 +206,8 @@ html.dark .admin-role-badge { background: rgba(167, 139, 250, .18); color: #c4b5
     border-radius: 14px;
     margin-bottom: 12px;
 }
-.about-hero .title { margin-bottom: 8px; }
-.about-hero .subtitle { max-width: 480px; margin: 0 auto; }
+.about-hero .title { margin-bottom: 8px; word-break: keep-all; }
+.about-hero .subtitle { max-width: 480px; margin: 0 auto; word-break: keep-all; overflow-wrap: break-word; }
 
 .about-feature {
     display: flex;
@@ -210,11 +218,15 @@ html.dark .admin-role-badge { background: rgba(167, 139, 250, .18); color: #c4b5
 .about-feature-text h3 {
     margin: 0 0 8px;
     font-size: 20px;
+    word-break: keep-all;
+    overflow-wrap: break-word;
 }
 .about-feature-text p {
     margin: 0;
     color: var(--text-muted);
     line-height: 1.6;
+    word-break: keep-all;
+    overflow-wrap: break-word;
 }
 .about-feature-img {
     width: 100%;

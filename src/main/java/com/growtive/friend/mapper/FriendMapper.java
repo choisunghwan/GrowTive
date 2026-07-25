@@ -13,6 +13,9 @@ public interface FriendMapper {
     /** username으로 사용자 기본 정보 조회 (password 미포함) */
     UserBasic findUserBasicByUsername(@Param("username") String username);
 
+    /** 아이디 또는 이름(닉네임)으로 사용자 검색 (본인 제외, 최대 20명) */
+    List<UserBasic> searchUsers(@Param("query") String query, @Param("excludeUserId") Long excludeUserId);
+
     /** id로 사용자 기본 정보 조회 (password 미포함) */
     UserBasic findUserBasicById(@Param("id") Long id);
 

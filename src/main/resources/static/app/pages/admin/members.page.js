@@ -55,7 +55,7 @@ export default function AdminMembersPage() {
                             <td>${u.username}</td>
                             <td><input type="text" class="edit-display-name" value="${u.displayName}"></td>
                             <td><input type="text" class="edit-email" value="${u.email}"></td>
-                            <td>${u.role === 'ADMIN' ? '<span class="admin-role-badge">ADMIN</span>' : 'USER'}</td>
+                            <td>${u.role === 'ADMIN' ? '<span class="admin-role-badge">ADMIN</span>' : '<span class="user-role-badge">USER</span>'}</td>
                             <td>${fmtDateTime(u.lastLoginAt)}</td>
                             <td>${fmtDateTime(u.createdAt)}</td>
                             <td>
@@ -71,7 +71,7 @@ export default function AdminMembersPage() {
                         <td>${u.username}</td>
                         <td>${u.displayName}</td>
                         <td>${u.email}</td>
-                        <td>${u.role === 'ADMIN' ? '<span class="admin-role-badge">ADMIN</span>' : 'USER'}</td>
+                        <td>${u.role === 'ADMIN' ? '<span class="admin-role-badge">ADMIN</span>' : '<span class="user-role-badge">USER</span>'}</td>
                         <td>${fmtDateTime(u.lastLoginAt)}</td>
                         <td>${fmtDateTime(u.createdAt)}</td>
                         <td>

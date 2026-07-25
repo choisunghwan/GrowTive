@@ -30,6 +30,14 @@ public class FriendServiceImpl implements FriendService {
     private final ScheduleEventMapper scheduleEventMapper;
 
     @Override
+    public List<UserBasic> searchUsers(Long userId, String query) {
+        if (query == null || query.isBlank()) {
+            return List.of();
+        }
+        return mapper.searchUsers(query.trim(), userId);
+    }
+
+    @Override
     @Transactional
     public FriendConnectionDto createRequest(Long userId, String targetUsername) {
         UserBasic target = mapper.findUserBasicByUsername(targetUsername);

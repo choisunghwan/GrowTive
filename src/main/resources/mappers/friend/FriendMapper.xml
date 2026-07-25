@@ -17,6 +17,15 @@
         WHERE username = #{username}
     </select>
 
+    <select id="searchUsers" resultMap="UserBasicMap">
+        SELECT id, username, display_name
+        FROM users
+        WHERE (username LIKE CONCAT('%', #{query}, '%') OR display_name LIKE CONCAT('%', #{query}, '%'))
+          AND id != #{excludeUserId}
+        ORDER BY display_name
+        LIMIT 20
+    </select>
+
     <select id="findUserBasicById" resultMap="UserBasicMap">
         SELECT id, username, display_name
         FROM users
