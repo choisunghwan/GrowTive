@@ -80,8 +80,6 @@
         <div class="menu-title">계정</div>
         <ul>
             <li><a href="#/mypage">👤 마이페이지</a></li>
-            <!-- 모바일 전용: 상단바가 좁아서 로그아웃은 사이드바에서 -->
-            <li class="sidebar-logout-item"><a href="#" id="sidebarLogoutBtn">🚪 로그아웃</a></li>
         </ul>
         <!--관리자 전용 (JS로 role=ADMIN일 때만 표시)-->
         <div class="menu-title" id="adminMenuTitle" style="display:none;">관리자</div>
@@ -93,6 +91,11 @@
         <ul>
             <li><a href="#/about">ℹ️ 서비스 소개</a></li>
         </ul>
+
+        <!-- 로그아웃: 상단바 대신 사이드바 하단에 고정 -->
+        <div class="sidebar-footer">
+            <button type="button" id="sidebarLogoutBtn" class="sidebar-logout-btn">🚪 로그아웃</button>
+        </div>
     </aside>
 
     <!-- ✅ 라우터가 이곳에 렌더링 -->

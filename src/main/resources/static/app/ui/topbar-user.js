@@ -33,10 +33,10 @@ export function renderTopbarUser() {
 
     renderAdminNav();
 
-    // 모바일에서는 로그아웃을 사이드바 메뉴로 옮겼다 (topbar가 좁아서)
+    // 로그아웃 버튼은 상단바가 아니라 사이드바 하단에 고정되어 있다
     const sidebarLogoutBtn = document.getElementById('sidebarLogoutBtn');
     if (sidebarLogoutBtn) {
-        sidebarLogoutBtn.onclick = (e) => { e.preventDefault(); logout(); };
+        sidebarLogoutBtn.onclick = logout;
     }
 
     // ❌ 로그인 안 된 상태
@@ -50,11 +50,5 @@ export function renderTopbarUser() {
         <a href="#/mypage" class="topbar-username">
             👤 ${authStore.user.displayName}님
         </a>
-        <button id="logout-btn" class="topbar-logout">
-            로그아웃
-        </button>
     `;
-
-    // ✅ 로그아웃 클릭 이벤트
-    document.getElementById('logout-btn').addEventListener('click', logout);
 }

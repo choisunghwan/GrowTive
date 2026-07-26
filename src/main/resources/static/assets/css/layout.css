@@ -128,29 +128,6 @@ html.dark .topbar-salary-dot.is-working {
     color: var(--brand);
 }
 
-.sidebar-logout-item {
-    display: none; /* 데스크톱은 상단바 로그아웃 버튼 사용, 사이드바엔 안 보임 */
-}
-
-.topbar-logout {
-    height: 32px;
-    padding: 0 12px;
-    border-radius: var(--radius-sm);
-    border: 1px solid var(--border);
-    background: var(--bg-elevated);
-    color: var(--text-muted);
-    font-size: 13px;
-    white-space: nowrap;
-    flex-shrink: 0;
-    cursor: pointer;
-    transition: background .15s ease, color .15s ease;
-}
-
-.topbar-logout:hover {
-    background: var(--bg);
-    color: var(--text);
-}
-
 /* 🌙 테마 토글 버튼 (우측 상단) */
 .theme-toggle {
     border: none;
@@ -176,11 +153,18 @@ html.dark .topbar-salary-dot.is-working {
 }
 
 .sidebar {
-    width: 224px;
-    padding: 18px 14px;
+    width: 184px;
+    padding: 16px 10px;
     border-right: 1px solid var(--border);
     background: var(--bg-elevated);
     flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    /* 뷰포트 높이에 고정: 캘린더 내용이 아무리 길어도 로그아웃 버튼이 항상 보이게 */
+    position: sticky;
+    top: 60px;
+    height: calc(100vh - 60px);
+    overflow-y: auto;
     transition: width .25s ease, padding .25s ease, border .25s ease;
 }
 
@@ -226,6 +210,36 @@ html.dark .topbar-salary-dot.is-working {
     background: #eaf1ff;
     color: var(--brand);
     font-weight: 700;
+}
+
+/* 로그아웃: 사이드바 맨 아래에 고정 (스크롤 되어도 항상 하단) */
+.sidebar-footer {
+    margin-top: auto;
+    padding-top: 14px;
+    border-top: 1px solid var(--border);
+}
+
+.sidebar-logout-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 10px;
+    border: none;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--text-muted);
+    font-size: 14px;
+    font-weight: 500;
+    font-family: inherit;
+    text-align: left;
+    cursor: pointer;
+    transition: background .15s ease, color .15s ease;
+}
+
+.sidebar-logout-btn:hover {
+    background: var(--bg);
+    color: #dc2626;
 }
 
 .content {
@@ -305,6 +319,10 @@ html.dark .sidebar a.active {
     color: #93c5fd;
 }
 
+html.dark .sidebar-logout-btn:hover {
+    color: #f87171;
+}
+
 html.dark .notice-banner {
     background: #16233a;
     border-color: #23324a;
@@ -361,14 +379,6 @@ body.auth-view .content {
 
     .topbar-username {
         display: none; /* 모바일에서는 이름 숨김 */
-    }
-
-    .topbar-logout {
-        display: none; /* 모바일에서는 로그아웃을 사이드바 메뉴로 이동 */
-    }
-
-    .sidebar-logout-item {
-        display: list-item; /* 모바일에서만 사이드바에 로그아웃 노출 */
     }
 
     .sidebar-toggle-btn {

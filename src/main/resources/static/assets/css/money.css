@@ -223,7 +223,7 @@ html.dark .money-stat--remain { --stat-accent: #2dd4bf; }
 .ledger-grid {
     display: grid;
     grid-template-columns: repeat(7, minmax(0, 1fr));
-    gap: 6px;
+    gap: 4px;
 }
 
 /* 목록형(일정형) 보기 */
@@ -266,7 +266,7 @@ html.dark .money-stat--remain { --stat-accent: #2dd4bf; }
     overflow: hidden;
     border: 1px solid var(--border);
     border-radius: var(--radius-sm);
-    padding: 8px;
+    padding: 6px;
     cursor: pointer;
     transition: background 0.15s ease, border-color .15s ease;
 }
