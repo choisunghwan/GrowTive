@@ -1,8 +1,27 @@
 // resources/static/app/ui/sidebar-toggle.js
 // 모바일에서 사이드바를 기본적으로 접어두고, 햄버거 버튼으로 열고 닫는다.
+// 데스크톱에서는 별도로 사이드바를 아이콘만 남기고 접었다 펼 수 있다(폭을 넓게 쓰고 싶을 때).
 
 (function () {
+    const COLLAPSE_KEY = "growtive-sidebar-collapsed";
+
+    function initDesktopCollapse() {
+        const collapseBtn = document.getElementById("sidebar-collapse-btn");
+        if (!collapseBtn) return;
+
+        if (localStorage.getItem(COLLAPSE_KEY) === "1") {
+            document.body.classList.add("sidebar-collapsed");
+        }
+
+        collapseBtn.addEventListener("click", () => {
+            const collapsed = document.body.classList.toggle("sidebar-collapsed");
+            localStorage.setItem(COLLAPSE_KEY, collapsed ? "1" : "0");
+        });
+    }
+
     function initSidebarToggle() {
+        initDesktopCollapse();
+
         const btn = document.getElementById("sidebar-toggle");
         const sidebar = document.getElementById("sidebar");
         if (!btn || !sidebar) return;

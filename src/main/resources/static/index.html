@@ -61,40 +61,45 @@
 <!--좌측 사이드 바 메뉴-->
 <div class="container">
     <aside class="sidebar" id="sidebar">
+        <!-- 데스크톱 전용: 사이드바 접기/펼치기 -->
+        <button type="button" id="sidebar-collapse-btn" class="sidebar-collapse-btn" aria-label="사이드바 접기/펼치기">
+            <span class="sidebar-collapse-icon">«</span>
+        </button>
+
         <!--가계부(홈)-->
-        <div class="menu-title">가계부</div>
+        <div class="menu-title"><span class="sidebar-label">가계부</span></div>
         <ul>
-            <li><a href="#/calendar">📅 캘린더</a></li>
+            <li><a href="#/calendar">📅 <span class="sidebar-label">캘린더</span></a></li>
         </ul>
         <!--재무 대시보드-->
-        <div class="menu-title">재무 대시보드</div>
+        <div class="menu-title"><span class="sidebar-label">재무 대시보드</span></div>
         <ul>
-            <li><a href="#/money/flow">📈 돈 흐름</a></li>
+            <li><a href="#/money/flow">📈 <span class="sidebar-label">돈 흐름</span></a></li>
         </ul>
         <!--친구-->
-        <div class="menu-title">소셜</div>
+        <div class="menu-title"><span class="sidebar-label">소셜</span></div>
         <ul>
-            <li><a href="#/friends">👫 친구</a></li>
+            <li><a href="#/friends">👫 <span class="sidebar-label">친구</span></a></li>
         </ul>
         <!--마이페이지-->
-        <div class="menu-title">계정</div>
+        <div class="menu-title"><span class="sidebar-label">계정</span></div>
         <ul>
-            <li><a href="#/mypage">👤 마이페이지</a></li>
+            <li><a href="#/mypage">👤 <span class="sidebar-label">마이페이지</span></a></li>
         </ul>
         <!--관리자 전용 (JS로 role=ADMIN일 때만 표시)-->
-        <div class="menu-title" id="adminMenuTitle" style="display:none;">관리자</div>
+        <div class="menu-title" id="adminMenuTitle" style="display:none;"><span class="sidebar-label">관리자</span></div>
         <ul id="adminMenuList" style="display:none;">
-            <li><a href="#/admin/members">👥 회원관리</a></li>
+            <li><a href="#/admin/members">👥 <span class="sidebar-label">회원관리</span></a></li>
         </ul>
         <!--서비스 소개-->
-        <div class="menu-title">안내</div>
+        <div class="menu-title"><span class="sidebar-label">안내</span></div>
         <ul>
-            <li><a href="#/about">ℹ️ 서비스 소개</a></li>
+            <li><a href="#/about">ℹ️ <span class="sidebar-label">서비스 소개</span></a></li>
         </ul>
 
         <!-- 로그아웃: 상단바 대신 사이드바 하단에 고정 -->
         <div class="sidebar-footer">
-            <button type="button" id="sidebarLogoutBtn" class="sidebar-logout-btn">🚪 로그아웃</button>
+            <button type="button" id="sidebarLogoutBtn" class="sidebar-logout-btn">🚪 <span class="sidebar-label">로그아웃</span></button>
         </div>
     </aside>
 
