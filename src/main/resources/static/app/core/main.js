@@ -25,7 +25,7 @@ setupAxios();
  * (상단 메뉴 / 사이드바 현재 페이지 표시)
  */
 function highlightActive() {
-    const hash = location.hash || '#/dashboard';
+    const hash = location.hash || '#/calendar';
 
     // 🔐 로그인/회원가입 화면에서는 topbar/sidebar를 숨기고 폼만 보여준다
     const isAuthPage = hash.startsWith('#/login') || hash.startsWith('#/register');
@@ -55,9 +55,11 @@ async function boot() {
     // ⏱️ 상단바 실시간 급여 카운터
     initTopbarSalaryTicker();
 
-    // ⭐ 핵심 2: 기본 해시 없으면 대시보드로
+    // ⭐ 핵심 2: 기본 해시 없으면 로그인 여부에 따라 캘린더/로그인으로
+    // (로그아웃 상태인데도 무조건 캘린더로 갔다가 다시 로그인으로 튕기면
+    //  화면이 잠깐 깜빡이고 API 호출도 늘어나서, 여기서 먼저 걸러준다)
     if (!location.hash) {
-        location.hash = '#/dashboard';
+        location.hash = authStore.isLoggedIn() ? '#/calendar' : '#/login';
     }
 
     // 메뉴 활성화

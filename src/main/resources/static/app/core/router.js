@@ -1,5 +1,6 @@
 /*가계부(캘린더) 페이지 - 홈*/
 import { mount } from '../ui/mount.js';
+import authStore from '../store/authStore.js';
 import LedgerPage from '../pages/ledger/ledger.page.js';
 
 /*재무 대시보드 페이지(돈 흐름 + 반복 항목 설정)*/
@@ -25,10 +26,10 @@ import AboutPage from '../pages/about/about.page.js';
 import MyPage from '../pages/mypage/mypage.page.js';
 
 const routes = {
-    /*홈 = 가계부*/
+    /*홈 = 가계부(캘린더)*/
     '#/': LedgerPage,
-    '#/dashboard': LedgerPage,
-    '#/money/dashboard': DashboardPage,
+    '#/calendar': LedgerPage,
+    '#/money/flow': DashboardPage,
     /*로그인*/
     '#/login': LoginPage,
     '#/register': RegisterPage,
@@ -48,32 +49,30 @@ const routes = {
  * @type {string[]}
  */
 const authRequiredRoutes = [
-    '#/dashboard',
-    '#/money/dashboard',
+    '#/calendar',
+    '#/money/flow',
     '#/admin/members',
     '#/friends',
     '#/compare',
     '#/mypage',
 ];
 
-export async function navigate() {
+export function navigate() {
     const hash = location.hash || '#/login';
     const base = hash.split('?')[0];
     const Page = routes[base] || NotFound;
 
     const needAuth = authRequiredRoutes.includes(base);
 
-    // 🔐 로그인 페이지는 무조건 통과
-    if (needAuth) {
-        try {
-            await axios.get('/api/auth/me');
-        } catch (e) {
-            if (base !== '#/login') {
-                location.hash = '#/login';
-            }
-            mount(LoginPage); // ✅ 강제로 로그인 페이지 렌더
-            return;
+    // 🔐 로그인 여부는 boot() 때 이미 확인한 authStore를 그대로 믿는다.
+    // (페이지 전환마다 /api/auth/me를 매번 다시 부르면 그만큼 느려지기만 함.
+    //  세션이 중간에 끊긴 경우는 각 API 호출의 401 인터셉터가 처리한다.)
+    if (needAuth && !authStore.isLoggedIn()) {
+        if (base !== '#/login') {
+            location.hash = '#/login';
         }
+        mount(LoginPage);
+        return;
     }
 
     mount(Page);

@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.util.Map;
@@ -53,6 +54,14 @@ public class GlobalExceptionHandler {
                 .map(f -> f.getField() + ": " + f.getDefaultMessage())
                 .orElse("잘못된 요청입니다.");
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", message));
+    }
+
+    @ExceptionHandler(ResponseStatusException.class)
+    public ResponseEntity<Map<String, String>> handleResponseStatus(ResponseStatusException e) {
+        // Exception.class 캐치올보다 먼저 잡아서, throw new ResponseStatusException(UNAUTHORIZED) 같은
+        // 코드가 의도한 상태코드 대신 500으로 뭉개지는 것을 막는다.
+        String message = e.getReason() != null ? e.getReason() : "요청을 처리할 수 없습니다.";
+        return ResponseEntity.status(e.getStatusCode()).body(Map.of("message", message));
     }
 
     @ExceptionHandler(Exception.class)

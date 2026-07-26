@@ -162,7 +162,7 @@ export default function LoginPage() {
                     /**
                      * 4️⃣ 로그인 후 이동
                      */
-                    location.hash = '#/dashboard';
+                    location.hash = '#/calendar';
 
                 } catch (err) {
 

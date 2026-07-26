@@ -4,15 +4,14 @@ import com.growtive.auth.dto.LoginRequestDto;
 import com.growtive.auth.dto.UserResponseDto;
 import com.growtive.auth.dto.WorkScheduleDto;
 import com.growtive.auth.service.AuthService;
+import com.growtive.common.exception.UnauthorizedException;
 
 import com.growtive.user.model.User;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 import com.growtive.auth.dto.RegisterRequestDto;
 
 
@@ -83,7 +82,7 @@ public class AuthController {
         String provider = (String) session.getAttribute("provider");
 
         if (userId == null) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+            throw new UnauthorizedException("로그인이 필요합니다.");
         }
 
         return new UserResponseDto(
@@ -117,7 +116,7 @@ public class AuthController {
     @GetMapping("/work-schedule")
     public WorkScheduleDto getWorkSchedule(HttpSession session) {
         Long userId = (Long) session.getAttribute("userId");
-        if (userId == null) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+        if (userId == null) throw new UnauthorizedException("로그인이 필요합니다.");
 
         User user = authService.getUserById(userId);
         WorkScheduleDto dto = new WorkScheduleDto();
@@ -130,7 +129,7 @@ public class AuthController {
     @PutMapping("/work-schedule")
     public void updateWorkSchedule(@RequestBody WorkScheduleDto request, HttpSession session) {
         Long userId = (Long) session.getAttribute("userId");
-        if (userId == null) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+        if (userId == null) throw new UnauthorizedException("로그인이 필요합니다.");
 
         authService.updateWorkSchedule(userId, request.getWorkStartTime(), request.getWorkEndTime(), request.getWorkDays());
     }

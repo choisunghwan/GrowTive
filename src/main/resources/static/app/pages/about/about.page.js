@@ -70,7 +70,7 @@ export default function AboutPage() {
                 cta.innerHTML = `
                     <h3>이미 사용 중이시네요 👋</h3>
                     <p class="subtitle">가계부로 돌아가서 이번 달 내역을 확인해보세요.</p>
-                    <a href="#/dashboard" class="btn primary">가계부로 이동</a>
+                    <a href="#/calendar" class="btn primary">가계부로 이동</a>
                 `;
             } else {
                 cta.innerHTML = `
