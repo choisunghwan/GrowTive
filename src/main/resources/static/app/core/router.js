@@ -30,6 +30,9 @@ const routes = {
     '#/': LedgerPage,
     '#/calendar': LedgerPage,
     '#/money/flow': DashboardPage,
+    /*예전 이름(캐시된 옛날 JS/북마크/공유링크 대비 하위호환용) - 새 코드는 위 이름을 쓴다*/
+    '#/dashboard': LedgerPage,
+    '#/money/dashboard': DashboardPage,
     /*로그인*/
     '#/login': LoginPage,
     '#/register': RegisterPage,
@@ -51,6 +54,8 @@ const routes = {
 const authRequiredRoutes = [
     '#/calendar',
     '#/money/flow',
+    '#/dashboard',
+    '#/money/dashboard',
     '#/admin/members',
     '#/friends',
     '#/compare',
