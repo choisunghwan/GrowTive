@@ -34,7 +34,7 @@ public class AuthController {
      * @param session
      */
     @PostMapping("/login")
-    public void login(
+    public UserResponseDto login(
             @RequestBody LoginRequestDto request,
             HttpSession session,
             HttpServletRequest httpRequest,
@@ -64,6 +64,16 @@ public class AuthController {
             cookie.setMaxAge(thirtyDaysInSeconds);
             httpResponse.addCookie(cookie);
         }
+
+        // 로그인 응답에 유저 정보를 바로 담아서, 프론트가 이어서 /api/auth/me를
+        // 또 호출하지 않고 바로 화면을 그릴 수 있게 한다 (왕복 한 번 절약)
+        return new UserResponseDto(
+                user.getId(),
+                user.getUsername(),
+                user.getDisplayName(),
+                user.getRole(),
+                user.getProvider()
+        );
     }
 
     /**

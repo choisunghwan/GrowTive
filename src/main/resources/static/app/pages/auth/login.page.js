@@ -133,8 +133,9 @@ export default function LoginPage() {
                      * 1️⃣ 서버 로그인 요청
                      * - AuthController → AuthService → DB 조회
                      * - 로그인 성공 시 HttpSession 생성
+                     * - 응답에 유저 정보가 바로 담겨오므로 /api/auth/me를 또 부를 필요 없음
                      */
-                    await axios.post('/api/auth/login', {
+                    const { data: loggedInUser } = await axios.post('/api/auth/login', {
                         username: userId,
                         password: password,
                         rememberMe: keepLoggedInInput.checked
@@ -148,9 +149,8 @@ export default function LoginPage() {
 
                     /**
                      * 2️⃣ 서버 세션 → 프론트 전역 상태 동기화
-                     * - 현재 로그인 유저 정보 조회
                      */
-                    await authStore.load();
+                    authStore.setUser(loggedInUser);
 
                     /**
                      * 3️⃣ 상단바 사용자 정보 즉시 갱신

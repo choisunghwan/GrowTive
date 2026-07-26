@@ -84,7 +84,7 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
         session.setAttribute("role", user.getRole());
         session.setAttribute("provider", user.getProvider());
 
-        response.sendRedirect("/#/dashboard");
+        response.sendRedirect("/#/calendar");
     }
 
     @SuppressWarnings("unchecked")

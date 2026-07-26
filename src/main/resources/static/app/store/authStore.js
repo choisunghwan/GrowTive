@@ -17,6 +17,7 @@
  *
  * user           → 로그인 유저 상태
  * load()         → 서버 세션 동기화
+ * setUser()      → 이미 알고 있는 유저 정보로 즉시 채우기 (예: 로그인 응답)
  * isLoggedIn()   → 로그인 여부
  * getUserId()    → 현재 userId 반환
  * clear()        → 로그아웃 처리
@@ -50,6 +51,14 @@ const authStore = {
             this.user = null;
             return null;
         }
+    },
+
+    /**
+     * 로그인 응답 등 이미 받아온 유저 정보로 즉시 채운다.
+     * (로그인 직후 /api/auth/me를 또 호출하는 왕복을 없애기 위함)
+     */
+    setUser(userData) {
+        this.user = userData;
     },
 
     /**
