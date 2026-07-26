@@ -8,6 +8,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.core.user.OAuth2User;
@@ -27,12 +29,27 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 
+    private static final Logger log = LoggerFactory.getLogger(OAuth2LoginSuccessHandler.class);
+
     private final AuthService authService;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request,
                                          HttpServletResponse response,
                                          Authentication authentication) throws IOException, ServletException {
+        try {
+            handle(request, response, authentication);
+        } catch (RuntimeException e) {
+            // 소셜 로그인 콜백 처리 중 예외가 나면 하얀 화면(Whitelabel) 대신
+            // 로그인 화면으로 돌려보내고, 원인은 로그로 남긴다.
+            log.error("소셜 로그인 처리 실패", e);
+            response.sendRedirect("/#/login?oauthError=1");
+        }
+    }
+
+    private void handle(HttpServletRequest request,
+                         HttpServletResponse response,
+                         Authentication authentication) throws IOException {
 
         OAuth2AuthenticationToken oauthToken = (OAuth2AuthenticationToken) authentication;
         OAuth2User oAuth2User = oauthToken.getPrincipal();

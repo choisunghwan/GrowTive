@@ -92,6 +92,13 @@ export default function LoginPage() {
          */
         onMounted() {
 
+            // 소셜 로그인 콜백 처리 중 오류가 났을 때 (OAuth2LoginSuccessHandler 참고)
+            const query = location.hash.split('?')[1];
+            if (new URLSearchParams(query).get('oauthError')) {
+                alert('소셜 로그인 중 문제가 발생했습니다. 잠시 후 다시 시도해주세요.');
+                location.hash = '#/login';
+            }
+
             const REMEMBER_KEY = 'growtive-remembered-id';
 
             const form = document.getElementById('login-form');
