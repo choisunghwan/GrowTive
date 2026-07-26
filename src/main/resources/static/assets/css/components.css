@@ -145,13 +145,6 @@ html.dark .user-role-badge { background: rgba(148, 163, 184, .18); color: #cbd5e
 .modal-body{ color: var(--text-muted); margin:6px 0 14px; }
 .modal-actions{ display:flex; justify-content:flex-end; gap:8px; }
 
-/*
-* 메인화면(Dash board) CSS
-*/
-.dashboard {
-    padding: 24px;
-}
-
 .card .title {
     margin: 0 0 12px;
     font-size: 26px;

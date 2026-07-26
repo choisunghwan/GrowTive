@@ -3,8 +3,8 @@
 // ✅ 전역 로그인 상태 저장소
 import authStore from '../../store/authStore.js';
 
-// ✅ 상단바 유저 표시 렌더링 함수
-import { renderTopbarUser } from '../../ui/topbar-user.js';
+// ✅ 사이드바 계정 영역 렌더링 함수
+import { renderUserPanel } from '../../ui/topbar-user.js';
 import { initTopbarSalaryTicker } from '../../ui/salary-ticker.js';
 
 export default function LoginPage() {
@@ -156,7 +156,7 @@ export default function LoginPage() {
                      * 3️⃣ 상단바 사용자 정보 즉시 갱신
                      * - 새로고침 없이 UI 업데이트
                      */
-                    renderTopbarUser();
+                    renderUserPanel();
                     initTopbarSalaryTicker();
 
                     /**

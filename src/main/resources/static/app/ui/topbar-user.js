@@ -17,8 +17,8 @@ async function logout() {
         authStore.clear();
         stopTopbarSalaryTicker();
 
-        // 2️⃣ ⭐ 상단바 즉시 다시 그리기
-        renderTopbarUser();
+        // 2️⃣ ⭐ 사이드바 계정 영역 즉시 다시 그리기
+        renderUserPanel();
 
         // 3️⃣ 로그인 페이지 이동
         location.hash = '#/login';
@@ -27,28 +27,20 @@ async function logout() {
     }
 }
 
-export function renderTopbarUser() {
-    const el = document.getElementById('topbar-user');
-    if (!el) return;
-
+/**
+ * 사이드바 하단 계정 영역(이름/다크모드/로그아웃) 갱신.
+ * 로그인 상태에서만 사이드바 자체가 보이므로(라우터 가드), 로그인 안 된 상태는 다루지 않는다.
+ */
+export function renderUserPanel() {
     renderAdminNav();
 
-    // 로그아웃 버튼은 상단바가 아니라 사이드바 하단에 고정되어 있다
-    const sidebarLogoutBtn = document.getElementById('sidebarLogoutBtn');
-    if (sidebarLogoutBtn) {
-        sidebarLogoutBtn.onclick = logout;
+    const logoutBtn = document.getElementById('sidebarLogoutBtn');
+    if (logoutBtn) {
+        logoutBtn.onclick = logout;
     }
 
-    // ❌ 로그인 안 된 상태
-    if (!authStore.user) {
-        el.innerHTML = `<a href="#/login">로그인</a>`;
-        return;
+    const nameEl = document.getElementById('sidebarUserName');
+    if (nameEl && authStore.user) {
+        nameEl.textContent = `${authStore.user.displayName}님`;
     }
-
-    // ✅ 로그인 된 상태
-    el.innerHTML = `
-        <a href="#/mypage" class="topbar-username">
-            👤 ${authStore.user.displayName}님
-        </a>
-    `;
 }

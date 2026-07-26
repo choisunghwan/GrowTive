@@ -6,8 +6,10 @@
     align-items: center;
     padding: 0 20px;
     gap: 16px;
-    position: sticky;
+    position: fixed;
     top: 0;
+    left: 0;
+    right: 0;
     z-index: 10;
     box-shadow: var(--shadow-sm);
     overflow: hidden;
@@ -105,89 +107,64 @@ html.dark .topbar-salary-dot.is-working {
     box-shadow: 0 0 0 3px rgba(34, 197, 94, .22);
 }
 
-.topbar-user {
+/* 급여 상태(근무중/휴무일 등) - 점 + 텍스트 */
+.topbar-salary-status {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 5px;
 }
 
-.topbar-user a {
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--brand);
-}
-
-.topbar-username {
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--text);
-    cursor: pointer;
-    transition: color .15s ease;
-}
-.topbar-username:hover {
-    color: var(--brand);
-}
-
-/* 🌙 테마 토글 버튼 (우측 상단) */
-.theme-toggle {
-    border: none;
-    background: transparent;
-    cursor: pointer;
-    font-size: 17px;
-    line-height: 1;
-    padding: 6px 10px;
-    border-radius: 999px;
-    color: var(--text-muted);
-    transition: background .15s ease;
-}
-
-.theme-toggle:hover {
-    background: var(--bg);
-}
-
-/* 레이아웃 */
+/* 레이아웃
+   사이드바는 position:fixed로 완전히 뷰포트에 고정하고(스크롤에 전혀 영향 안 받음),
+   .content는 그만큼 margin-left로 비켜준다. (position:sticky를 flex 안에서 썼더니
+   콘텐츠가 길 때 stick이 안 먹는 문제가 있어서 더 확실한 fixed 방식으로 바꿈) */
 .container {
     display: flex;
+    margin-top: 60px;
     min-height: calc(100vh - 60px);
     background: var(--bg);
 }
 
 .sidebar {
+    position: fixed;
+    top: 60px;
+    left: 0;
     width: 184px;
-    padding: 16px 10px;
+    height: calc(100vh - 60px);
+    padding: 14px 10px 16px;
     border-right: 1px solid var(--border);
     background: var(--bg-elevated);
-    flex-shrink: 0;
     display: flex;
     flex-direction: column;
-    /* 뷰포트 높이에 고정: 캘린더 내용이 아무리 길어도 로그아웃 버튼이 항상 보이게 */
-    position: sticky;
-    top: 60px;
-    height: calc(100vh - 60px);
-    overflow-y: auto;
+    z-index: 5;
     transition: width .25s ease, padding .25s ease, border .25s ease;
 }
 
-/* 데스크톱 전용 사이드바 접기/펼치기 버튼 */
+/* 사이드바 맨 위: 접기/펼치기 버튼을 담는 줄 (겹치지 않게 별도 flow) */
+.sidebar-top {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 4px;
+}
+
 .sidebar-collapse-btn {
-    position: absolute;
-    top: 10px;
-    right: 8px;
-    width: 22px;
-    height: 22px;
+    width: 26px;
+    height: 26px;
+    padding: 0;
     display: flex;
     align-items: center;
     justify-content: center;
+    flex-shrink: 0;
     border: none;
-    border-radius: 999px;
+    border-radius: var(--radius-sm);
     background: transparent;
     color: var(--text-muted);
     cursor: pointer;
-    z-index: 1;
+    transition: background .15s ease, color .15s ease;
 }
 .sidebar-collapse-btn:hover {
     background: var(--bg);
-    color: var(--text);
+    color: var(--brand);
 }
 .sidebar-collapse-icon {
     display: inline-block;
@@ -196,7 +173,6 @@ html.dark .topbar-salary-dot.is-working {
 
 .sidebar .menu-title {
     margin: 18px 4px 6px;
-    padding-right: 20px;
     font-size: 12px;
     font-weight: 700;
     letter-spacing: .04em;
@@ -250,14 +226,21 @@ html.dark .topbar-salary-dot.is-working {
         width: 56px;
         padding: 16px 6px;
     }
+    body.sidebar-collapsed .content {
+        margin-left: 56px;
+    }
     body.sidebar-collapsed .sidebar-label,
     body.sidebar-collapsed .menu-title {
         display: none;
     }
     body.sidebar-collapsed .sidebar a,
+    body.sidebar-collapsed .sidebar-user-link,
     body.sidebar-collapsed .sidebar-logout-btn {
         justify-content: center;
         padding: 9px 0;
+    }
+    body.sidebar-collapsed .sidebar-top {
+        justify-content: center;
     }
     body.sidebar-collapsed .sidebar-collapse-icon {
         transform: rotate(180deg);
@@ -267,10 +250,14 @@ html.dark .topbar-salary-dot.is-working {
 /* 로그아웃: 사이드바 맨 아래에 고정 (스크롤 되어도 항상 하단) */
 .sidebar-footer {
     margin-top: auto;
-    padding-top: 14px;
+    padding-top: 10px;
     border-top: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
 }
 
+.sidebar-user-link,
 .sidebar-logout-btn {
     width: 100%;
     display: flex;
@@ -289,6 +276,16 @@ html.dark .topbar-salary-dot.is-working {
     transition: background .15s ease, color .15s ease;
 }
 
+.sidebar-user-link {
+    color: var(--text);
+    font-weight: 600;
+}
+
+.sidebar-user-link:hover {
+    background: var(--bg);
+    color: var(--brand);
+}
+
 .sidebar-logout-btn:hover {
     background: var(--bg);
     color: #dc2626;
@@ -296,8 +293,9 @@ html.dark .topbar-salary-dot.is-working {
 
 .content {
     flex: 1;
+    margin-left: 184px;
     padding: 24px;
-    transition: padding .25s ease;
+    transition: padding .25s ease, margin-left .25s ease;
 }
 
 /* -----------------------------
@@ -404,10 +402,12 @@ body.auth-view .sidebar {
 }
 
 body.auth-view .container {
+    margin-top: 0;
     min-height: 100vh;
 }
 
 body.auth-view .content {
+    margin-left: 0;
     padding: 0;
 }
 
@@ -427,10 +427,6 @@ body.auth-view .content {
     .topbar-salary-ticker {
         font-size: 11px;
         gap: 4px;
-    }
-
-    .topbar-username {
-        display: none; /* 모바일에서는 이름 숨김 */
     }
 
     .sidebar-toggle-btn {
@@ -531,6 +527,7 @@ body.auth-view .content {
        Content
        ===================== */
     .content {
+        margin-left: 0; /* 모바일 사이드바는 오버레이라 콘텐츠를 밀어내지 않는다 */
         padding: 12px;
     }
 

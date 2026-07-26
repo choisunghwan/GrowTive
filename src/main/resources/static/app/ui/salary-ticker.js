@@ -108,7 +108,10 @@ export async function initTopbarSalaryTicker() {
     };
 
     el.innerHTML = `
-        <span class="topbar-salary-dot" id="topbarSalaryDot"></span>
+        <span class="topbar-salary-status" id="topbarSalaryStatus">
+            <span class="topbar-salary-dot" id="topbarSalaryDot"></span>
+            <span id="topbarSalaryStatusText"></span>
+        </span>
         <span id="topbarSalaryAmount"></span>
     `;
 
@@ -132,10 +135,18 @@ export async function initTopbarSalaryTicker() {
         const workingNow = todayIsWorkDay && nowTick >= startOfWork && nowTick < endOfWork;
 
         amountEl.textContent = `💰 ${earned.toLocaleString("ko-KR")}원`;
+        const statusText = workingNow ? "근무중" : (todayIsWorkDay ? "대기중" : "휴무일");
         const dot = document.getElementById("topbarSalaryDot");
         if (dot) {
             dot.classList.toggle("is-working", workingNow);
-            dot.title = workingNow ? "근무 중" : (todayIsWorkDay ? "근무 시간 아님" : "휴무일");
+        }
+        const statusTextEl = document.getElementById("topbarSalaryStatusText");
+        if (statusTextEl) {
+            statusTextEl.textContent = statusText;
+        }
+        const statusWrap = document.getElementById("topbarSalaryStatus");
+        if (statusWrap) {
+            statusWrap.title = workingNow ? "근무 중" : (todayIsWorkDay ? "근무 시간 아님" : "휴무일");
         }
 
         const gauge = document.getElementById("topbar-gauge");

@@ -11,7 +11,7 @@
 import { navigate } from './router.js';
 import { setupAxios } from './apiClient.js';
 import authStore from '../store/authStore.js';
-import { renderTopbarUser } from '../ui/topbar-user.js';
+import { renderUserPanel } from '../ui/topbar-user.js';
 import { initTopbarSalaryTicker } from '../ui/salary-ticker.js';
 /**
  * axios 전역 설정
@@ -49,8 +49,8 @@ async function boot() {
     // 서버(HttpSession)에 로그인 정보가 있으면 authStore.user에 저장됨
     await authStore.load();
 
-    // 🔝 상단바 유저 표시
-    renderTopbarUser();
+    // 🔝 사이드바 계정 영역(이름/다크모드/로그아웃) 표시
+    renderUserPanel();
 
     // ⏱️ 상단바 실시간 급여 카운터
     initTopbarSalaryTicker();

@@ -17,7 +17,16 @@
         if (!btn) return;
         // 라이트 모드일 때는 🌙 아이콘 보여주고,
         // 다크 모드일 때는 ☀️ 아이콘 보여줌
-        btn.textContent = theme === "dark" ? "☀️" : "🌙";
+        const icon = document.getElementById("theme-toggle-icon");
+        const label = document.getElementById("themeToggleLabel");
+        if (icon) {
+            icon.textContent = theme === "dark" ? "☀️" : "🌙";
+        } else {
+            btn.textContent = theme === "dark" ? "☀️" : "🌙";
+        }
+        if (label) {
+            label.textContent = theme === "dark" ? "라이트 모드" : "다크 모드";
+        }
     }
 
     function getPreferredTheme() {

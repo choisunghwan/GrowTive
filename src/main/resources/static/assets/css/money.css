@@ -119,15 +119,11 @@ html.dark .money-stat--remain { --stat-accent: #2dd4bf; }
     display: grid;
     grid-template-columns: minmax(0, 1fr);
     gap: 16px;
-    padding: 24px;
-    max-width: 900px;
-    margin: 0 auto;
 }
 
 @media (max-width: 768px) {
     .ledger-page {
         gap: 10px;
-        padding: 10px;
     }
     .ledger-page .card {
         padding: 12px;
@@ -223,7 +219,8 @@ html.dark .money-stat--remain { --stat-accent: #2dd4bf; }
 .ledger-grid {
     display: grid;
     grid-template-columns: repeat(7, minmax(0, 1fr));
-    gap: 4px;
+    grid-auto-rows: 92px;
+    gap: 5px;
 }
 
 /* 목록형(일정형) 보기 */
@@ -262,11 +259,11 @@ html.dark .money-stat--remain { --stat-accent: #2dd4bf; }
 
 .ledger-cell {
     min-width: 0;
-    min-height: 68px;
+    height: 100%;
     overflow: hidden;
     border: 1px solid var(--border);
     border-radius: var(--radius-sm);
-    padding: 6px;
+    padding: 7px;
     cursor: pointer;
     transition: background 0.15s ease, border-color .15s ease;
 }
@@ -288,10 +285,10 @@ html.dark .money-stat--remain { --stat-accent: #2dd4bf; }
 .ledger-cell--drag { background: rgba(124, 58, 237, .14); border-color: #7c3aed; }
 .ledger-cell--range-selected { background: rgba(124, 58, 237, .14); border-color: #7c3aed; }
 
-.ledger-cell-day { font-size: 13px; font-weight: 700; }
+.ledger-cell-day { font-size: 14px; font-weight: 700; }
 .ledger-cell-expense,
 .ledger-cell-income {
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 600;
     overflow-wrap: break-word;
     word-break: break-all;
@@ -522,7 +519,9 @@ html.dark .ledger-form-toggle-btn:hover {
 
 @media (max-width: 768px) {
     .ledger-page { padding: 12px; }
-    .ledger-cell { min-height: 48px; padding: 4px; }
+    .ledger-grid { grid-auto-rows: 64px; gap: 4px; }
+    .ledger-cell { padding: 4px; }
+    .ledger-cell-day { font-size: 12px; }
     .ledger-cell-expense,
     .ledger-cell-income { font-size: 10px; }
     .ledger-summary { gap: 14px; font-size: 13px; }

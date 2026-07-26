@@ -46,15 +46,6 @@
 
     <!-- ⏱️ 실시간 급여 카운터 (월급 등록 + 근무 스케줄 설정 시에만 표시) -->
     <div class="topbar-salary-ticker" id="topbar-salary-ticker"></div>
-
-    <!-- ✅ 로그인 유저 영역 -->
-    <div class="topbar-user" id="topbar-user"></div>
-        <!-- JS로 채움 -->
-
-    <!-- 🌙/☀️ 테마 토글 버튼 -->
-    <button id="theme-toggle" class="theme-toggle" type="button" aria-label="Toggle dark mode">
-        🌙
-    </button>
 </header>
 
 
@@ -62,9 +53,14 @@
 <div class="container">
     <aside class="sidebar" id="sidebar">
         <!-- 데스크톱 전용: 사이드바 접기/펼치기 -->
-        <button type="button" id="sidebar-collapse-btn" class="sidebar-collapse-btn" aria-label="사이드바 접기/펼치기">
-            <span class="sidebar-collapse-icon">«</span>
-        </button>
+        <div class="sidebar-top">
+            <button type="button" id="sidebar-collapse-btn" class="sidebar-collapse-btn" aria-label="사이드바 접기/펼치기">
+                <svg class="sidebar-collapse-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="11 17 6 12 11 7"></polyline>
+                    <polyline points="18 17 13 12 18 7"></polyline>
+                </svg>
+            </button>
+        </div>
 
         <!--가계부(홈)-->
         <div class="menu-title"><span class="sidebar-label">가계부</span></div>
@@ -81,11 +77,6 @@
         <ul>
             <li><a href="#/friends">👫 <span class="sidebar-label">친구</span></a></li>
         </ul>
-        <!--마이페이지-->
-        <div class="menu-title"><span class="sidebar-label">계정</span></div>
-        <ul>
-            <li><a href="#/mypage">👤 <span class="sidebar-label">마이페이지</span></a></li>
-        </ul>
         <!--관리자 전용 (JS로 role=ADMIN일 때만 표시)-->
         <div class="menu-title" id="adminMenuTitle" style="display:none;"><span class="sidebar-label">관리자</span></div>
         <ul id="adminMenuList" style="display:none;">
@@ -97,8 +88,14 @@
             <li><a href="#/about">ℹ️ <span class="sidebar-label">서비스 소개</span></a></li>
         </ul>
 
-        <!-- 로그아웃: 상단바 대신 사이드바 하단에 고정 -->
+        <!-- 계정 영역: 유저 정보 / 다크모드 / 로그아웃 (상단바 대신 사이드바 하단에 고정) -->
         <div class="sidebar-footer">
+            <a href="#/mypage" class="sidebar-user-link" id="sidebarUserLink">
+                👤 <span class="sidebar-label" id="sidebarUserName">내 계정</span>
+            </a>
+            <button type="button" id="theme-toggle" class="sidebar-logout-btn" aria-label="다크모드 전환">
+                <span id="theme-toggle-icon">🌙</span> <span class="sidebar-label" id="themeToggleLabel">다크 모드</span>
+            </button>
             <button type="button" id="sidebarLogoutBtn" class="sidebar-logout-btn">🚪 <span class="sidebar-label">로그아웃</span></button>
         </div>
     </aside>
