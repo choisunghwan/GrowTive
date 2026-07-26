@@ -6,6 +6,7 @@ import authStore from '../../store/authStore.js';
 // ✅ 사이드바 계정 영역 렌더링 함수
 import { renderUserPanel } from '../../ui/topbar-user.js';
 import { initTopbarSalaryTicker } from '../../ui/salary-ticker.js';
+import { authVisualHtml } from './auth-visual.js';
 
 export default function LoginPage() {
     return {
@@ -18,69 +19,73 @@ export default function LoginPage() {
          */
         render() {
             return `
-                <div class="login-container">
-                    <h1 class="login-title">
-                        <img src="/assets/img/icon-192.png?v=2" alt="" class="login-title-icon">
-                        GROWTIVE
-                    </h1>
+                <div class="auth-shell">
+                    ${authVisualHtml()}
 
-                    <form id="login-form" class="login-form">
+                    <div class="auth-panel">
+                        <div class="auth-panel-inner">
+                            <div class="auth-tabs">
+                                <a href="#/login" class="auth-tab is-active">로그인</a>
+                                <a href="#/register" class="auth-tab">회원가입</a>
+                            </div>
 
-                        <!-- 아이디 입력 -->
-                        <input
-                            type="text"
-                            id="userId"
-                            class="login-input"
-                            placeholder="아이디를 입력하세요"
-                            required
-                        />
+                            <h2 class="auth-welcome">다시 오셨군요 👋</h2>
+                            <p class="auth-welcome-sub">계정에 로그인하세요</p>
 
-                        <!-- 비밀번호 입력 -->
-                        <input
-                            type="password"
-                            id="password"
-                            class="login-input"
-                            placeholder="비밀번호를 입력하세요"
-                            required
-                        />
+                            <form id="login-form" class="auth-form">
 
-                        <!-- 아이디 기억하기 / 로그인 유지 -->
-                        <div class="login-remember-row">
-                            <label class="login-remember">
-                                <input type="checkbox" id="rememberId"> 아이디 기억하기
-                            </label>
-                            <label class="login-remember">
-                                <input type="checkbox" id="keepLoggedIn"> 로그인 유지
-                            </label>
+                                <!-- 아이디 입력 -->
+                                <input
+                                    type="text"
+                                    id="userId"
+                                    class="auth-input"
+                                    placeholder="아이디를 입력하세요"
+                                    required
+                                />
+
+                                <!-- 비밀번호 입력 -->
+                                <input
+                                    type="password"
+                                    id="password"
+                                    class="auth-input"
+                                    placeholder="비밀번호를 입력하세요"
+                                    required
+                                />
+
+                                <!-- 아이디 기억하기 / 로그인 유지 -->
+                                <div class="auth-remember-row">
+                                    <label class="auth-remember">
+                                        <input type="checkbox" id="rememberId"> 아이디 기억하기
+                                    </label>
+                                    <label class="auth-remember">
+                                        <input type="checkbox" id="keepLoggedIn"> 로그인 유지
+                                    </label>
+                                </div>
+
+                                <!-- 로그인 버튼 -->
+                                <button type="submit" class="auth-submit-btn">
+                                    로그인
+                                </button>
+
+                            </form>
+
+                            <div class="auth-divider"><span>또는</span></div>
+
+                            <a href="/oauth2/authorization/kakao" class="kakao-login-btn">
+                                <span class="auth-kakao-icon">💬</span> 카카오로 로그인
+                            </a>
+
+                            <p class="auth-foot-desc">
+                                이메일로 가입한 계정이 있다면 이메일 로그인 후<br>
+                                설정에서 카카오를 연결해 주세요.
+                            </p>
+
+                            <!-- 서비스 소개 -->
+                            <p class="auth-foot-link">
+                                <a href="#/about">로그인 없이 GROWTIVE 둘러보기 →</a>
+                            </p>
                         </div>
-
-                        <!-- 로그인 버튼 -->
-                        <button type="submit" class="login-btn">
-                            로그인
-                        </button>
-
-                    </form>
-
-                    <div class="login-divider"><span>또는</span></div>
-
-                    <a href="/oauth2/authorization/kakao" class="kakao-login-btn">
-                        <span class="kakao-login-icon">💬</span> 카카오로 로그인
-                    </a>
-
-                    <p class="login-desc">
-                        계정 아이디와 비밀번호를 입력하세요
-                    </p>
-                    
-                    <!-- 회원가입 이동 -->
-                    <p class="login-desc"> 계정이 없으신가요?
-                        <a href="#/register">회원가입</a>
-                    </p>
-
-                    <!-- 서비스 소개 -->
-                    <p class="login-desc">
-                        <a href="#/about">GROWTIVE가 궁금하신가요? 서비스 소개 보기</a>
-                    </p>
-
+                    </div>
                 </div>
             `;
         },

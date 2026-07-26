@@ -206,6 +206,13 @@ html.dark .topbar-salary-dot.is-working {
     transition: background .15s ease, color .15s ease;
 }
 
+.sidebar-icon {
+    flex-shrink: 0;
+    width: 18px;
+    height: 18px;
+    display: inline-block;
+}
+
 .sidebar a:hover {
     background: var(--bg);
 }

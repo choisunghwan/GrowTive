@@ -1,5 +1,7 @@
 // src/main/resources/static/app/pages/auth/register.page.js
 
+import { authVisualHtml } from './auth-visual.js';
+
 export default function RegisterPage() {
 
     return {
@@ -9,57 +11,64 @@ export default function RegisterPage() {
         render() {
 
             return `
-                <div class="login-container">
+                <div class="auth-shell">
+                    ${authVisualHtml()}
 
-                    <h1 class="login-title">
-                        <img src="/assets/img/icon-192.png?v=2" alt="" class="login-title-icon">
-                        회원가입
-                    </h1>
+                    <div class="auth-panel">
+                        <div class="auth-panel-inner">
+                            <div class="auth-tabs">
+                                <a href="#/login" class="auth-tab">로그인</a>
+                                <a href="#/register" class="auth-tab is-active">회원가입</a>
+                            </div>
 
-                    <form id="register-form" class="login-form">
+                            <h2 class="auth-welcome">환영해요 🎉</h2>
+                            <p class="auth-welcome-sub">새 계정을 만들어보세요</p>
 
-                        <input
-                            type="text"
-                            id="username"
-                            class="login-input"
-                            placeholder="아이디"
-                            required
-                        />
+                            <form id="register-form" class="auth-form">
 
-                        <input
-                            type="password"
-                            id="password"
-                            class="login-input"
-                            placeholder="비밀번호"
-                            required
-                        />
+                                <input
+                                    type="text"
+                                    id="username"
+                                    class="auth-input"
+                                    placeholder="아이디"
+                                    required
+                                />
 
-                        <input
-                            type="text"
-                            id="displayName"
-                            class="login-input"
-                            placeholder="이름"
-                            required
-                        />
+                                <input
+                                    type="password"
+                                    id="password"
+                                    class="auth-input"
+                                    placeholder="비밀번호"
+                                    required
+                                />
 
-                        <input
-                            type="email"
-                            id="email"
-                            class="login-input"
-                            placeholder="이메일"
-                            required
-                        />
+                                <input
+                                    type="text"
+                                    id="displayName"
+                                    class="auth-input"
+                                    placeholder="이름"
+                                    required
+                                />
 
-                        <button type="submit" class="login-btn">
-                            회원가입
-                        </button>
+                                <input
+                                    type="email"
+                                    id="email"
+                                    class="auth-input"
+                                    placeholder="이메일"
+                                    required
+                                />
 
-                    </form>
+                                <button type="submit" class="auth-submit-btn">
+                                    회원가입
+                                </button>
 
-                    <p class="login-desc"> 이미 계정이 있으신가요?
-                        <a href="#/login">로그인으로 돌아가기</a>
-                    </p>
+                            </form>
 
+                            <p class="auth-desc"> 이미 계정이 있으신가요?
+                                <a href="#/login">로그인으로 돌아가기</a>
+                            </p>
+                        </div>
+                    </div>
                 </div>
             `;
         },
